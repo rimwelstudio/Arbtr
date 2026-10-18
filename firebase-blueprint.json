@@ -1,0 +1,50 @@
+{
+  "entities": {
+    "decision": {
+      "title": "Decision Analysis",
+      "description": "A saved Arbitr decision analysis document stored in Firestore",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The UID of the user who owns this decision",
+          "maxLength": 128
+        },
+        "title": {
+          "type": "string",
+          "description": "The title of the decision (e.g., Job Offer A vs. Job Offer B)",
+          "maxLength": 500
+        },
+        "options": {
+          "type": "array",
+          "description": "Array of objects with option names, criteria, weights, and scores"
+        },
+        "verdict": {
+          "type": "string",
+          "description": "The final recommendation or winning option name",
+          "maxLength": 500
+        },
+        "summary": {
+          "type": "string",
+          "description": "Short explanation of why the recommended option won",
+          "maxLength": 5000
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Server timestamp of when the decision was saved"
+        }
+      },
+      "required": ["userId", "title", "options", "verdict", "summary", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/decisions/{decisionId}": {
+      "schema": "decision",
+      "description": "Top-level collection of decisions owned by authenticated users"
+    },
+    "/users/{userId}/decisions/{decisionId}": {
+      "schema": "decision",
+      "description": "User-scoped collection of decisions for user document synchronization"
+    }
+  }
+}

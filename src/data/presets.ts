@@ -1,0 +1,68 @@
+import { DecisionPreset } from '../types';
+
+export const DECISION_PRESETS: DecisionPreset[] = [
+  {
+    id: 'career-move',
+    title: 'Accept New Job Offer vs. Stay at Current Company',
+    category: 'Career',
+    context: 'Current role has great colleagues, solid work-life balance, and moderate pay ($115k). The offer is at a fast-growing scale-up for $155k with equity, but higher pace, 40-minute commute 3 days/week, and steeper expectations.',
+    options: ['Accept High-Growth Scale-up Offer', 'Stay at Current Stable Company'],
+    priorities: ['Financial Growth', 'Work-Life Balance', 'Career Trajectory', 'Psychological Safety'],
+  },
+  {
+    id: 'housing-choice',
+    title: 'Buy a Suburban Townhome vs. Keep Renting in the City Center',
+    category: 'Finance & Living',
+    context: 'We have saved a $90k down payment. Buying locks in equity and gives a yard for our dog, but adds 35 min to transit, HOA fees, and maintenance. Renting allows walkable cafes, low stress, and investing savings in index funds.',
+    options: ['Buy Suburban Townhome ($520k)', 'Continue Renting Downtown ($2,800/mo)'],
+    priorities: ['Wealth Accumulation', 'Walkability & Social Life', 'Space for Pets/Family', 'Flexibility to Relocate'],
+  },
+  {
+    id: 'startup-vs-corporate',
+    title: 'Bootstrap My Own SaaS vs. Accept Director of Eng Promotion',
+    category: 'Entrepreneurship',
+    context: 'I have 14 months of living expenses saved. My prototype has 120 waitlist signups and 6 LOIs. The corporate promotion pays $230k total comp and offers high prestige, but I yearn for autonomy and ownership.',
+    options: ['Go All-In on Bootstrapping SaaS', 'Accept Director Promotion & Keep SaaS as Side-Project'],
+    priorities: ['Creative Autonomy', 'Financial Security', 'Regret Minimization', 'Workload & Health'],
+  },
+  {
+    id: 'relocation',
+    title: 'Relocate to New York City vs. Stay in Austin, Texas',
+    category: 'Finance & Living',
+    context: 'Working remotely with freedom to live anywhere. NYC has unbeatable cultural density, close friends from college, and endless serendipity, but high taxes and small apartments. Austin is sunny, affordable, and laid-back.',
+    options: ['Move to NYC (Brooklyn)', 'Remain in Austin'],
+    priorities: ['Community & Friends', 'Cost of Living', 'Daily Stimulation', 'Outdoor Access'],
+  },
+  {
+    id: 'tech-architecture',
+    title: 'Refactor Modular Monolith vs. Break Out Microservices',
+    category: 'Engineering & Tech',
+    context: 'Our engineering team has grown from 8 to 35 engineers. Deployments are slowing down and domain boundaries are blurry. Microservices allow decoupled deploys but introduce distributed tracing, network overhead, and complex local testing.',
+    options: ['Refactor into Clean Modular Monolith', 'Decompose into Independent Microservices'],
+    priorities: ['Developer Velocity', 'Operational Simplicity', 'System Reliability', 'Infrastructure Cost'],
+  },
+  {
+    id: 'product-strategy',
+    title: 'Build Custom AI Engine In-House vs. Partner with Best-of-Breed API',
+    category: 'Product & Strategy',
+    context: 'We are adding generative analysis to our core B2B product. Building custom models gives data defensibility and margins at scale, but costs 6+ months and specialized hires. Partnering with top-tier foundation APIs ships in 3 weeks with proven reliability.',
+    options: ['Integrate Foundation AI API via Cloud', 'Train and Host Custom In-House Model'],
+    priorities: ['Time to Market', 'Data Privacy & IP', 'Maintenance Overhead', 'Gross Margins'],
+  },
+  {
+    id: 'grad-school-vs-work',
+    title: 'Pursue Top-Tier MBA / Master’s vs. Accelerate in Tech Industry',
+    category: 'Career',
+    context: 'Accepted into a top-10 business school program. Tuition and opportunity cost total roughly $220k over 2 years. Continuing in tech offers steady promotion track and equity vesting, but MBA offers alumni network and pivot into venture capital.',
+    options: ['Enroll in Full-Time MBA Program', 'Stay in Industry & Seek Promotion Track'],
+    priorities: ['Long-Term Career Upside', 'Immediate Financial Health', 'Network Expansion', 'Opportunity Cost'],
+  },
+  {
+    id: 'financial-allocation',
+    title: 'Aggressively Pay Down 4.5% Mortgage vs. Maximize Index Fund Investing',
+    category: 'Finance & Living',
+    context: 'Have an extra $1,800/month after standard retirement matching. Paying off mortgage eliminates debt by age 44 and provides guaranteed mental peace. Investing in broad market index funds offers historically higher returns (7-9%) but with market volatility.',
+    options: ['Accelerate Mortgage Principal Payments', 'Direct Extra Cash to Low-Cost Index Funds'],
+    priorities: ['Peace of Mind', 'Expected Wealth at Retirement', 'Liquidity in Emergencies', 'Simplicity'],
+  },
+];

@@ -1,0 +1,31 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Safety Net: Default-deny all unmapped paths
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Connection validation probe document (used during initialization)
+    match /test/connection {
+      allow read: if true;
+    }
+
+    // Top-level decisions collection
+    match /decisions/{decisionId} {
+      // Security Rules: Ensure firestore.rules restricts reads, updates, and deletes exclusively to the owner
+      allow read, update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
+
+      // Creation restricted to authenticated users writing their own UID
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+    }
+
+    // User subcollection (for backward compatibility)
+    match /users/{userId}/decisions/{decisionId} {
+      allow read, update, delete: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null && request.auth.uid == userId && request.resource.data.userId == userId;
+    }
+  }
+}

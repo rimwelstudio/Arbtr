@@ -1,0 +1,10 @@
+{
+  "name": "Arbitr",
+  "description": "Stop overthinking. Start deciding. Arbitr (arbitrapp.com / @arbitrapp) is an AI-powered decision analysis tool providing structured pros and cons, multi-option comparison tables, SWOT analyses, and tiebreaker verdicts.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

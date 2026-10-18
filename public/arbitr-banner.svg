@@ -1,0 +1,131 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" fill="none">
+  <defs>
+    <!-- Background Vignette -->
+    <radialGradient id="outerVignette" cx="50%" cy="50%" r="75%">
+      <stop offset="0%" stop-color="#14213d" />
+      <stop offset="60%" stop-color="#0b132b" />
+      <stop offset="100%" stop-color="#050a17" />
+    </radialGradient>
+
+    <!-- Card Background -->
+    <linearGradient id="cardSurface" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#111c38" />
+      <stop offset="100%" stop-color="#0c1428" />
+    </linearGradient>
+
+    <!-- Neon Glow Gradient -->
+    <linearGradient id="neonGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="45%" stop-color="#00F0FF" />
+      <stop offset="100%" stop-color="#60A5FA" />
+    </linearGradient>
+
+    <linearGradient id="wordmarkGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#E2E8F0" />
+    </linearGradient>
+
+    <!-- Ambient Glow behind emblem -->
+    <radialGradient id="ambientCyan" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#00F0FF" stop-opacity="0.25" />
+      <stop offset="60%" stop-color="#0284C7" stop-opacity="0.08" />
+      <stop offset="100%" stop-color="#000000" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Card Shadow -->
+    <filter id="cardShadow" x="-10%" y="-10%" width="120%" height="125%">
+      <feDropShadow dx="0" dy="25" stdDeviation="35" flood-color="#000000" flood-opacity="0.65" />
+    </filter>
+
+    <!-- Neon Filter -->
+    <filter id="bannerNeonGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="6" result="blur1" />
+      <feGaussianBlur stdDeviation="2.5" result="blur2" />
+      <feMerge>
+        <feMergeNode in="blur1" />
+        <feMergeNode in="blur2" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Outer Background Canvas -->
+  <rect width="1200" height="675" fill="url(#outerVignette)" />
+
+  <!-- Center Floating Card -->
+  <rect x="180" y="45" width="840" height="585" rx="8" fill="url(#cardSurface)" stroke="#1e2e54" stroke-width="1.5" filter="url(#cardShadow)" />
+
+  <!-- Ambient Light Circle behind logo -->
+  <circle cx="600" cy="270" r="220" fill="url(#ambientCyan)" />
+
+  <!-- The Arbitr Emblem (Centered at x=600, y=260) -->
+  <g filter="url(#bannerNeonGlow)" stroke="url(#neonGradient)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" transform="translate(460, 120) scale(1.4)">
+    <!-- Central Upward Arrow -->
+    <path d="M 100 24 L 78 62 L 91 58 L 91 76 M 100 24 L 122 62 L 109 58 L 109 76" />
+    <polygon points="100,28 82,60 93,56 93,72 107,72 107,56 118,60" fill="url(#neonGradient)" fill-opacity="0.25" />
+
+    <!-- Outer Circular Boundary Arcs -->
+    <path d="M 78 46 A 58 58 0 0 0 48 74" />
+    <path d="M 122 46 A 58 58 0 0 1 152 74" />
+    <path d="M 44 84 A 58 58 0 0 0 76 142" />
+    <path d="M 156 84 A 58 58 0 0 1 124 142" />
+
+    <!-- Left Scale (Pan of Justice) -->
+    <path d="M 62 76 L 40 114" />
+    <path d="M 62 76 L 76 114" />
+    <path d="M 38 114 L 78 114" />
+    <path d="M 40 114 Q 59 134 76 114 Z" fill="url(#neonGradient)" fill-opacity="0.18" />
+
+    <!-- Right Scale (Pan of Justice) -->
+    <path d="M 138 76 L 124 114" />
+    <path d="M 138 76 L 160 114" />
+    <path d="M 122 114 L 162 114" />
+    <path d="M 124 114 Q 142 134 160 114 Z" fill="url(#neonGradient)" fill-opacity="0.18" />
+
+    <!-- Intertwining Converging Ribbons -->
+    <path d="M 72 158 C 88 158 93 141 94 122 C 95 102 94 84 94 72" />
+    <path d="M 128 158 C 112 158 107 141 106 122 C 105 102 106 84 106 72" />
+    
+    <!-- Ribbon bottom tails -->
+    <path d="M 72 158 C 64 158 54 161 46 166" />
+    <path d="M 128 158 C 136 158 146 161 154 166" />
+  </g>
+
+  <!-- Typography: Modern Geometric "ARBITR" (Centered horizontally) -->
+  <g transform="translate(365, 455)">
+    <!-- Letter A with stylized diagonal slash -->
+    <g transform="translate(0, 0)">
+      <path d="M 14 75 L 42 10" stroke="url(#wordmarkGrad)" stroke-width="9" stroke-linecap="round" />
+      <path d="M 42 10 L 70 75" stroke="url(#wordmarkGrad)" stroke-width="9" stroke-linecap="round" />
+      <path d="M 0 68 L 36 45" stroke="url(#wordmarkGrad)" stroke-width="8" stroke-linecap="round" />
+    </g>
+
+    <!-- Letter R -->
+    <g transform="translate(86, 0)">
+      <path d="M 10 75 L 10 10 L 40 10 C 56 10 62 22 62 33 C 62 44 54 53 38 53 L 10 53 M 36 53 L 62 75" 
+            stroke="url(#wordmarkGrad)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" />
+    </g>
+
+    <!-- Letter B -->
+    <g transform="translate(170, 0)">
+      <path d="M 10 75 L 10 10 L 38 10 C 50 10 56 18 56 28 C 56 38 48 43 36 43 L 10 43 M 36 43 C 50 43 58 49 58 60 C 58 71 50 75 36 75 L 10 75" 
+            stroke="url(#wordmarkGrad)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" />
+    </g>
+
+    <!-- Letter I -->
+    <g transform="translate(258, 0)">
+      <path d="M 10 10 L 10 75" stroke="url(#wordmarkGrad)" stroke-width="9" stroke-linecap="round" />
+    </g>
+
+    <!-- Letter T -->
+    <g transform="translate(295, 0)">
+      <path d="M 2 10 L 64 10 M 33 10 L 33 75" stroke="url(#wordmarkGrad)" stroke-width="9" stroke-linecap="round" />
+    </g>
+
+    <!-- Letter R -->
+    <g transform="translate(380, 0)">
+      <path d="M 10 75 L 10 10 L 40 10 C 56 10 62 22 62 33 C 62 44 54 53 38 53 L 10 53 M 36 53 L 62 75" 
+            stroke="url(#wordmarkGrad)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" />
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Arbitr</title>
+    <meta name="theme-color" content="#0a0d14" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Arbitr" />
+    <link rel="icon" type="image/svg+xml" href="/arbitr-icon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="canonical" href="/" />
+    <meta name="description" content="Stop overthinking. Start deciding. Arbitr (arbitrapp.com / @arbitrapp) is an AI-powered decision analysis tool providing structured pros and cons, multi-option comparison tables, SWOT analyses, and tiebreaker verdicts." />
+    <meta name="application-name" content="Arbitr" />
+    <meta property="og:title" content="Arbitr" />
+    <meta property="og:description" content="Stop overthinking. Start deciding. Arbitr (arbitrapp.com / @arbitrapp) is an AI-powered decision analysis tool providing structured pros and cons, multi-option comparison tables, SWOT analyses, and tiebreaker verdicts." />
+    <meta property="og:url" content="/" />
+    <meta property="og:site_name" content="Arbitr" />
+    <meta property="og:image" content="/arbitr-banner.svg" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@arbitrapp" />
+    <meta name="twitter:creator" content="@arbitrapp" />
+    <meta name="twitter:image" content="/arbitr-banner.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <script>
+      (function() {
+        // Prevent Vite HMR WebSocket connection failure in sandboxed preview iframe
+        if (typeof window !== 'undefined' && window.WebSocket) {
+          var NativeWebSocket = window.WebSocket;
+          function ViteSafeWebSocket(url, protocols) {
+            var isViteHmr = false;
+            if (protocols === 'vite-hmr' || (Array.isArray(protocols) && protocols.indexOf('vite-hmr') !== -1)) {
+              isViteHmr = true;
+            } else if (typeof url === 'string' && (url.indexOf('token=') !== -1 || url.indexOf('vite') !== -1)) {
+              isViteHmr = true;
+            }
+
+            if (isViteHmr) {
+              var target = new EventTarget();
+              target.readyState = 1; // OPEN
+              target.OPEN = 1;
+              target.CONNECTING = 0;
+              target.CLOSING = 2;
+              target.CLOSED = 3;
+              target.send = function() {};
+              target.close = function() {};
+              setTimeout(function() {
+                try {
+                  target.dispatchEvent(new Event('open'));
+                } catch (_) {}
+              }, 0);
+              return target;
+            }
+            return new NativeWebSocket(url, protocols);
+          }
+
+          ViteSafeWebSocket.prototype = NativeWebSocket.prototype;
+          ViteSafeWebSocket.CONNECTING = 0;
+          ViteSafeWebSocket.OPEN = 1;
+          ViteSafeWebSocket.CLOSING = 2;
+          ViteSafeWebSocket.CLOSED = 3;
+          window.WebSocket = ViteSafeWebSocket;
+        }
+
+        // Global safeguard against unhandled WebSocket rejections
+        window.addEventListener('unhandledrejection', function(e) {
+          var msg = (e && e.reason && (e.reason.message || e.reason)) || '';
+          if (typeof msg === 'string' && (msg.indexOf('WebSocket') !== -1 || msg.indexOf('websocket') !== -1)) {
+            e.preventDefault();
+            if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+          }
+        });
+        window.addEventListener('error', function(e) {
+          var msg = (e && (e.message || e.error)) || '';
+          if (typeof msg === 'string' && (msg.indexOf('WebSocket') !== -1 || msg.indexOf('websocket') !== -1)) {
+            e.preventDefault();
+            if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+          }
+        });
+      })();
+    </script>
+  </head>
+  <body class="bg-neutral-50 text-neutral-900 antialiased selection:bg-indigo-100 selection:text-indigo-900">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
