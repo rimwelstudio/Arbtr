@@ -17,13 +17,14 @@ import {
   MessageSquare,
   Download,
   Keyboard,
-  Sliders
+  Sliders,
+  Globe
 } from 'lucide-react';
 import { useLiveVoice, LiveVoiceMessage } from '../hooks/useLiveVoice';
 import { DecisionAnalysisResult } from '../types';
 import { HumanoidVoiceVisualizer } from './HumanoidVoiceVisualizer';
 import { HumanoidIcon } from './HumanoidIcon';
-import { getTranslation } from '../utils/i18n';
+import { getTranslation, SUPPORTED_LANGUAGES } from '../utils/i18n';
 
 interface LiveVoiceModalProps {
   isOpen: boolean;
@@ -48,13 +49,22 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
   currentLanguage = 'en',
   onOpenZenaWidget,
 }) => {
-  const t = getTranslation(currentLanguage);
+  const [conversationLanguage, setConversationLanguage] = useState<string>(currentLanguage || 'en');
+  const t = getTranslation(conversationLanguage);
+  const [activeTab, setActiveTab] = useState<'studio' | 'transcript'>('studio');
   const [includeContext, setIncludeContext] = useState(true);
   const [textInput, setTextInput] = useState('');
   const [copied, setCopied] = useState(false);
   const [downloaded, setDownloaded] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const transcriptEndRef = useRef<HTMLDivElement>(null);
+
+  // Sync conversationLanguage when currentLanguage prop changes
+  useEffect(() => {
+    if (currentLanguage) {
+      setConversationLanguage(currentLanguage);
+    }
+  }, [currentLanguage]);
 
   // Compile context string from active decision
   const decisionContextString = React.useMemo(() => {
@@ -80,6 +90,8 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
     isSpeakerMuted,
     voice,
     setVoice,
+    language,
+    setLanguage,
     messages,
     userVolume,
     modelVolume,
@@ -95,19 +107,20 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
   } = useLiveVoice({
     decisionContext: decisionContextString,
     defaultVoice: 'Zena',
+    language: conversationLanguage,
   });
 
   // Auto-scroll transcript
   useEffect(() => {
     transcriptEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isModelSpeaking]);
+  }, [messages, isModelSpeaking, activeTab]);
 
-  // Connect on modal open if idle
+  // Connect automatically on modal open to make conversation live immediately
   useEffect(() => {
-    if (isOpen && status === 'idle') {
-      startSession(decisionContextString, voice);
+    if (isOpen && (status === 'idle' || status === 'error')) {
+      startSession(decisionContextString, voice, conversationLanguage);
     }
-  }, [isOpen, status, startSession, decisionContextString, voice]);
+  }, [isOpen, status, startSession, decisionContextString, voice, conversationLanguage]);
 
   // Keyboard shortcuts (M = mute mic, S = mute speaker, Esc = close)
   useEffect(() => {
@@ -195,16 +208,74 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
     setTimeout(() => setDownloaded(false), 2000);
   };
 
-  const quickPrompts = activeDecision ? [
-    `Zena, what is the greatest hidden risk with ${(activeDecision.options?.[0]?.name) || 'Option A'} vs ${(activeDecision.options?.[1]?.name) || 'Option B'}?`,
-    `Zena, argue against your recommended choice "${activeDecision.verdict?.recommendedOptionName || 'the leading option'}".`,
-    `Zena, if I need to move forward within 24 hours, what should I execute first?`,
-    `Zena, which option has the lowest emotional regret potential?`,
-  ] : [
-    "Zena, help me choose between two difficult career paths.",
-    "Zena, how should I structure my decision criteria?",
-    "Zena, what questions should I ask myself to break a tie?",
-  ];
+  const quickPrompts = React.useMemo(() => {
+    const opt0 = activeDecision?.options?.[0]?.name || 'Option A';
+    const opt1 = activeDecision?.options?.[1]?.name || 'Option B';
+    const winner = activeDecision?.verdict?.recommendedOptionName || 'the leading choice';
+
+    if (conversationLanguage === 'es') {
+      return activeDecision ? [
+        `${voice}, ¿cuál es el mayor riesgo oculto entre "${opt0}" vs "${opt1}"?`,
+        `${voice}, argumenta en contra de tu elección recomendada "${winner}".`,
+        `${voice}, si debo actuar dentro de 24 horas, ¿cuál es mi primer paso?`,
+        `${voice}, ¿cuál opción tiene menor probabilidad de arrepentimiento?`,
+      ] : [
+        `${voice}, ayúdame a elegir entre dos opciones difíciles.`,
+        `${voice}, ¿cómo debo priorizar mis criterios de decisión?`,
+        `${voice}, ¿qué preguntas debo hacerme para romper este empate?`,
+      ];
+    }
+
+    if (conversationLanguage === 'fr') {
+      return activeDecision ? [
+        `${voice}, quel est le plus grand risque caché entre "${opt0}" et "${opt1}" ?`,
+        `${voice}, argumente contre ton choix recommandé "${winner}".`,
+        `${voice}, si je dois avancer sous 24h, que dois-je exécuter en premier ?`,
+        `${voice}, quelle option minimise le regret ?`,
+      ] : [
+        `${voice}, aide-moi à départager deux options difficiles.`,
+        `${voice}, comment structurer mes critères de décision ?`,
+        `${voice}, quelles questions me poser pour trancher ?`,
+      ];
+    }
+
+    if (conversationLanguage === 'de') {
+      return activeDecision ? [
+        `${voice}, was ist das größte versteckte Risiko zwischen "${opt0}" und "${opt1}"?`,
+        `${voice}, argumentiere gegen deine Empfehlung "${winner}".`,
+        `${voice}, wenn ich innerhalb von 24 Stunden handeln muss, was ist der erste Schritt?`,
+        `${voice}, welche Option minimiert Reuegefühle?`,
+      ] : [
+        `${voice}, hilf mir bei der Entscheidung zwischen zwei Optionen.`,
+        `${voice}, wie sollte ich meine Kriterien gewichten?`,
+        `${voice}, welche Kernfragen brechen dieses Patt?`,
+      ];
+    }
+
+    if (conversationLanguage === 'tl') {
+      return activeDecision ? [
+        `${voice}, ano ang pinakamalaking nakatagong panganib sa "${opt0}" vs "${opt1}"?`,
+        `${voice}, mangatwiran laban sa iyong inirekumendang "${winner}".`,
+        `${voice}, kung kailangan kong kumilos sa loob ng 24 oras, ano ang uunahin ko?`,
+        `${voice}, aling opsyon ang may pinakamababang potensyal na pagsisisi?`,
+      ] : [
+        `${voice}, tulungan mo akong pumili sa dalawang mahirap na desisyon.`,
+        `${voice}, paano ko dapat iayos ang aking pamantayan?`,
+        `${voice}, anong mga tanong ang dapat kong itanong sa sarili ko?`,
+      ];
+    }
+
+    return activeDecision ? [
+      `${voice}, what is the greatest hidden risk with "${opt0}" vs "${opt1}"?`,
+      `${voice}, argue against your recommended choice "${winner}".`,
+      `${voice}, if I need to move forward within 24 hours, what should I execute first?`,
+      `${voice}, which option has the lowest emotional regret potential?`,
+    ] : [
+      `${voice}, help me choose between two difficult career paths.`,
+      `${voice}, how should I structure my decision criteria?`,
+      `${voice}, what questions should I ask myself to break a tie?`,
+    ];
+  }, [activeDecision, conversationLanguage, voice]);
 
   if (!isOpen) return null;
 
@@ -308,11 +379,11 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
           </div>
         )}
 
-        {/* Context & Voice Selection Strip */}
+        {/* Context, Voice & Language Control Strip */}
         <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-2.5 bg-neutral-100/60 dark:bg-neutral-950/50 border-b border-neutral-200/60 dark:border-neutral-800 text-xs">
           {/* Decision context toggle */}
           {activeDecision ? (
-            <div className="flex items-center gap-2 max-w-full sm:max-w-md truncate">
+            <div className="flex items-center gap-2 max-w-full sm:max-w-xs truncate">
               <BrainCircuit className="h-4 w-4 text-indigo-500 shrink-0" />
               <span className="text-neutral-500 dark:text-neutral-400 shrink-0">{t.liveVoiceGrounding || 'Grounding:'}</span>
               <button
@@ -333,153 +404,233 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
             </div>
           )}
 
-          {/* Voice persona selector */}
-          <div className="flex items-center gap-2 ml-auto">
-            <span className="text-neutral-500 dark:text-neutral-400">{t.liveVoiceVoiceLabel || 'Voice:'}</span>
-            <select
-              id="live-voice-persona-select"
-              value={voice}
-              onChange={(e) => {
-                const newVoice = e.target.value;
-                setVoice(newVoice);
-                if (status === 'connected') {
-                  startSession(decisionContextString, newVoice);
-                }
-              }}
-              className="rounded-md border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 py-1 px-2 text-xs font-medium text-neutral-800 dark:text-neutral-200 shadow-2xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
-            >
-              {VOICE_OPTIONS.map((v) => (
-                <option key={v.id} value={v.id}>
-                  {v.name} ({v.style})
-                </option>
-              ))}
-            </select>
+          {/* Controls: Voice & Conversation Language */}
+          <div className="flex flex-wrap items-center gap-3 ml-auto">
+            {/* Conversation Language Selector */}
+            <div className="flex items-center gap-1.5">
+              <Globe className="h-3.5 w-3.5 text-neutral-500 dark:text-neutral-400 shrink-0" />
+              <span className="text-neutral-500 dark:text-neutral-400">{t.liveVoiceLanguageLabel || 'Language:'}</span>
+              <select
+                id="live-voice-conversation-language-select"
+                value={conversationLanguage}
+                onChange={(e) => {
+                  const newLang = e.target.value;
+                  setConversationLanguage(newLang);
+                  setLanguage(newLang);
+                  if (status === 'connected') {
+                    startSession(decisionContextString, voice, newLang);
+                  }
+                }}
+                className="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 py-1 px-2 text-xs font-semibold text-neutral-800 dark:text-neutral-200 shadow-2xs focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer"
+                title={t.liveVoiceConversationLanguage || 'Conversation Language'}
+              >
+                {SUPPORTED_LANGUAGES.map((lang) => (
+                  <option key={lang.code} value={lang.code}>
+                    {lang.flag} {lang.nativeName}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Voice persona selector */}
+            <div className="flex items-center gap-1.5">
+              <span className="text-neutral-500 dark:text-neutral-400">{t.liveVoiceVoiceLabel || 'Voice:'}</span>
+              <select
+                id="live-voice-persona-select"
+                value={voice}
+                onChange={(e) => {
+                  const newVoice = e.target.value;
+                  setVoice(newVoice);
+                  if (status === 'connected') {
+                    startSession(decisionContextString, newVoice, conversationLanguage);
+                  }
+                }}
+                className="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 py-1 px-2 text-xs font-semibold text-neutral-800 dark:text-neutral-200 shadow-2xs focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer"
+              >
+                {VOICE_OPTIONS.map((v) => (
+                  <option key={v.id} value={v.id}>
+                    {v.name} ({v.style})
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
 
-        {/* Interactive Humanoid Voice Centerpiece */}
-        <div className="relative flex flex-col items-center justify-center py-5 px-4 bg-gradient-to-b from-neutral-900/5 via-white to-neutral-50 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-950 border-b border-neutral-200/80 dark:border-neutral-800">
-          <HumanoidVoiceVisualizer
-            status={status}
-            isMuted={isMuted}
-            isModelSpeaking={isModelSpeaking}
-            isUserSpeaking={isUserSpeaking}
-            modelVolume={modelVolume}
-            userVolume={userVolume}
-            voiceName={voice}
-            onToggleMute={toggleMute}
-          />
-
-          {/* Interruption Notice Banner */}
-          {isInterrupted && (
-            <div className="mt-2 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 text-amber-800 dark:text-amber-200 text-[11px] font-semibold animate-pulse">
-              <span>⚡ Interrupted — Listening to you</span>
-            </div>
-          )}
-
-          {/* Dynamic Status Indicator text */}
-          <div className="mt-2 text-center max-w-md">
-            <p className="text-xs sm:text-sm font-semibold text-neutral-800 dark:text-neutral-200">
-              {status === 'connecting' && 'Establishing neural link with Gemini 3.1 Live API...'}
-              {status === 'error' && (errorMessage || 'Connection failed')}
-              {status === 'connected' && isMuted && 'Acoustic sensors muted. Tap microphone or orb to speak.'}
-              {status === 'connected' && !isMuted && isModelSpeaking && 'Zena is speaking...'}
-              {status === 'connected' && !isMuted && isUserSpeaking && 'Zena is listening to you...'}
-              {status === 'connected' && !isMuted && !isModelSpeaking && !isUserSpeaking && 'Speak naturally or tap quick questions below'}
-              {status === 'disconnected' && 'Neural link disconnected'}
-            </p>
-            <p className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5">
-              {status === 'connected' 
-                ? 'Full-duplex bidirectional audio — interrupt naturally anytime.' 
-                : 'Please wait while session initializes.'}
-            </p>
+        {/* View Tabs Bar: Live Studio vs Conversation Transcript */}
+        <div className="flex items-center justify-between px-5 py-2 bg-white dark:bg-neutral-900 border-b border-neutral-200/80 dark:border-neutral-800 text-xs">
+          <div className="inline-flex p-0.5 rounded-xl bg-neutral-100 dark:bg-neutral-800 border border-neutral-200/80 dark:border-neutral-700">
+            <button
+              id="live-tab-studio-btn"
+              type="button"
+              onClick={() => setActiveTab('studio')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                activeTab === 'studio'
+                  ? 'bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-50 shadow-xs'
+                  : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
+              }`}
+            >
+              <Radio className="h-3.5 w-3.5 text-cyan-500" />
+              <span>{t.liveVoiceTabStudio || 'Live Studio'}</span>
+            </button>
+            <button
+              id="live-tab-transcript-btn"
+              type="button"
+              onClick={() => setActiveTab('transcript')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                activeTab === 'transcript'
+                  ? 'bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-50 shadow-xs'
+                  : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
+              }`}
+            >
+              <MessageSquare className="h-3.5 w-3.5 text-indigo-500" />
+              <span>{t.liveVoiceTabTranscript || 'Transcript'}</span>
+              {messages.filter((m) => m.role !== 'system').length > 0 && (
+                <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 font-bold">
+                  {messages.filter((m) => m.role !== 'system').length}
+                </span>
+              )}
+            </button>
           </div>
 
-          {/* Audio controls toolbar (Mic toggle, Speaker toggle, VU meter) */}
-          {status === 'connected' && (
-            <div className="mt-3 flex items-center gap-2 p-1.5 rounded-full bg-neutral-100/90 dark:bg-neutral-800/90 border border-neutral-200 dark:border-neutral-700 shadow-2xs">
-              {/* Mic mute toggle button */}
-              <button
-                id="live-voice-mic-toggle-btn"
-                type="button"
-                onClick={toggleMute}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-                  isMuted 
-                    ? 'bg-rose-500 text-white shadow-sm' 
-                    : 'bg-white dark:bg-neutral-700 text-neutral-800 dark:text-neutral-100 hover:bg-neutral-50 shadow-2xs'
-                }`}
-                title="Toggle microphone (Hotkey: M)"
-              >
-                {isMuted ? <MicOff className="h-3.5 w-3.5" /> : <Mic className="h-3.5 w-3.5 text-emerald-500" />}
-                <span>{isMuted ? 'Mic Muted' : 'Mic Active'}</span>
-              </button>
+          <div className="hidden sm:flex items-center gap-2 text-neutral-500 dark:text-neutral-400">
+            <span className="inline-block h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="font-mono text-[11px]">
+              {SUPPORTED_LANGUAGES.find((l) => l.code === conversationLanguage)?.name || conversationLanguage}
+            </span>
+          </div>
+        </div>
 
-              {/* Mic Input Level Meter VU Bar */}
-              <div className="flex items-center gap-0.5 px-2 py-1 bg-neutral-200/70 dark:bg-neutral-900/70 rounded-full h-5" title={`Mic Volume: ${Math.round(userVolume * 100)}%`}>
-                {[0.1, 0.25, 0.45, 0.7, 0.9].map((thresh, idx) => (
-                  <span
-                    key={idx}
-                    className={`w-1 rounded-full transition-all duration-75 ${
-                      !isMuted && userVolume >= thresh
-                        ? idx >= 3 
-                          ? 'h-3.5 bg-amber-500' 
-                          : 'h-3 bg-emerald-500'
-                        : 'h-1.5 bg-neutral-400/40 dark:bg-neutral-600/40'
-                    }`}
-                  />
-                ))}
+        {/* Interactive Humanoid Voice Centerpiece (Visible in Studio tab) */}
+        {activeTab === 'studio' && (
+          <div className="relative flex flex-col items-center justify-center py-5 px-4 bg-gradient-to-b from-neutral-900/5 via-white to-neutral-50 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-950 border-b border-neutral-200/80 dark:border-neutral-800">
+            <HumanoidVoiceVisualizer
+              status={status}
+              isMuted={isMuted}
+              isModelSpeaking={isModelSpeaking}
+              isUserSpeaking={isUserSpeaking}
+              modelVolume={modelVolume}
+              userVolume={userVolume}
+              voiceName={voice}
+              onToggleMute={toggleMute}
+            />
+
+            {/* Interruption Notice Banner */}
+            {isInterrupted && (
+              <div className="mt-2 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 text-amber-800 dark:text-amber-200 text-[11px] font-semibold animate-pulse">
+                <span>⚡ Interrupted — Listening to you</span>
               </div>
+            )}
 
-              {/* Speaker mute toggle button */}
-              <button
-                id="live-voice-speaker-toggle-btn"
-                type="button"
-                onClick={toggleSpeakerMute}
-                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-                  isSpeakerMuted 
-                    ? 'bg-amber-500 text-white shadow-sm' 
-                    : 'bg-white dark:bg-neutral-700 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 shadow-2xs'
-                }`}
-                title="Toggle speaker output sound (Hotkey: S)"
-              >
-                {isSpeakerMuted ? <VolumeX className="h-3.5 w-3.5" /> : <Volume2 className="h-3.5 w-3.5 text-cyan-500" />}
-                <span className="hidden sm:inline">{isSpeakerMuted ? 'Muted' : 'Audio On'}</span>
-              </button>
+            {/* Dynamic Status Indicator text */}
+            <div className="mt-2 text-center max-w-md">
+              <p className="text-xs sm:text-sm font-semibold text-neutral-800 dark:text-neutral-200">
+                {status === 'connecting' && (t.liveVoiceConnecting || 'Connecting...')}
+                {status === 'error' && (errorMessage || 'Connection failed')}
+                {status === 'connected' && isMuted && 'Acoustic sensors muted. Tap microphone or orb to speak.'}
+                {status === 'connected' && !isMuted && isModelSpeaking && `${voice} is speaking...`}
+                {status === 'connected' && !isMuted && isUserSpeaking && `${voice} is listening to you...`}
+                {status === 'connected' && !isMuted && !isModelSpeaking && !isUserSpeaking && 'Speak naturally or tap quick questions below'}
+                {status === 'disconnected' && 'Neural link disconnected'}
+              </p>
+              <p className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5">
+                {status === 'connected' 
+                  ? 'Full-duplex bidirectional audio — interrupt naturally anytime.' 
+                  : 'Please wait while session initializes.'}
+              </p>
             </div>
-          )}
 
-          {/* Reconnect or Switch button on error */}
-          {status === 'error' && (
-            <div className="mt-2 flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                onClick={() => startSession(decisionContextString, voice)}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-neutral-900 dark:bg-neutral-100 px-3 py-1.5 text-xs font-medium text-white dark:text-neutral-900 shadow-sm hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors cursor-pointer"
-              >
-                <RefreshCw className="h-3.5 w-3.5" />
-                Re-establish Neural Link
-              </button>
-              {onOpenZenaWidget && (
+            {/* Audio controls toolbar (Mic toggle, Speaker toggle, VU meter) */}
+            {status === 'connected' && (
+              <div className="mt-3 flex items-center gap-2 p-1.5 rounded-full bg-neutral-100/90 dark:bg-neutral-800/90 border border-neutral-200 dark:border-neutral-700 shadow-2xs">
+                {/* Mic mute toggle button */}
+                <button
+                  id="live-voice-mic-toggle-btn"
+                  type="button"
+                  onClick={toggleMute}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                    isMuted 
+                      ? 'bg-rose-500 text-white shadow-sm' 
+                      : 'bg-white dark:bg-neutral-700 text-neutral-800 dark:text-neutral-100 hover:bg-neutral-50 shadow-2xs'
+                  }`}
+                  title="Toggle microphone (Hotkey: M)"
+                >
+                  {isMuted ? <MicOff className="h-3.5 w-3.5" /> : <Mic className="h-3.5 w-3.5 text-emerald-500" />}
+                  <span>{isMuted ? 'Mic Muted' : 'Mic Active'}</span>
+                </button>
+
+                {/* Mic Input Level Meter VU Bar */}
+                <div className="flex items-center gap-0.5 px-2 py-1 bg-neutral-200/70 dark:bg-neutral-900/70 rounded-full h-5" title={`Mic Volume: ${Math.round(userVolume * 100)}%`}>
+                  {[0.1, 0.25, 0.45, 0.7, 0.9].map((thresh, idx) => (
+                    <span
+                      key={idx}
+                      className={`w-1 rounded-full transition-all duration-75 ${
+                        !isMuted && userVolume >= thresh
+                          ? idx >= 3 
+                            ? 'h-3.5 bg-amber-500' 
+                            : 'h-3 bg-emerald-500'
+                          : 'h-1.5 bg-neutral-400/40 dark:bg-neutral-600/40'
+                      }`}
+                    />
+                  ))}
+                </div>
+
+                {/* Speaker mute toggle button */}
+                <button
+                  id="live-voice-speaker-toggle-btn"
+                  type="button"
+                  onClick={toggleSpeakerMute}
+                  className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                    isSpeakerMuted 
+                      ? 'bg-amber-500 text-white shadow-sm' 
+                      : 'bg-white dark:bg-neutral-700 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 shadow-2xs'
+                  }`}
+                  title="Toggle speaker output sound (Hotkey: S)"
+                >
+                  {isSpeakerMuted ? <VolumeX className="h-3.5 w-3.5" /> : <Volume2 className="h-3.5 w-3.5 text-cyan-500" />}
+                  <span className="hidden sm:inline">{isSpeakerMuted ? 'Muted' : 'Audio On'}</span>
+                </button>
+              </div>
+            )}
+
+            {/* Reconnect or Switch button on error */}
+            {status === 'error' && (
+              <div className="mt-2 flex flex-wrap items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => {
-                    handleClose();
-                    onOpenZenaWidget();
-                  }}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-cyan-600 to-indigo-600 text-white px-3 py-1.5 text-xs font-semibold shadow-sm hover:opacity-90 transition-opacity cursor-pointer"
+                  onClick={() => startSession(decisionContextString, voice, conversationLanguage)}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-neutral-900 dark:bg-neutral-100 px-3 py-1.5 text-xs font-medium text-white dark:text-neutral-900 shadow-sm hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors cursor-pointer"
                 >
-                  <Sparkles className="h-3.5 w-3.5" />
-                  Use Zena Persona Sheet
+                  <RefreshCw className="h-3.5 w-3.5" />
+                  Re-establish Neural Link
                 </button>
-              )}
-            </div>
-          )}
-        </div>
+                {onOpenZenaWidget && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleClose();
+                      onOpenZenaWidget();
+                    }}
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-cyan-600 to-indigo-600 text-white px-3 py-1.5 text-xs font-semibold shadow-sm hover:opacity-90 transition-opacity cursor-pointer"
+                  >
+                    <Sparkles className="h-3.5 w-3.5" />
+                    Use Zena Persona Sheet
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Live Conversation Transcript Stream */}
-        <div className="flex-1 min-h-[160px] max-h-[300px] sm:max-h-[340px] overflow-y-auto p-4 space-y-3 bg-neutral-50/40 dark:bg-neutral-950/30">
+        <div className={`flex-1 overflow-y-auto p-4 space-y-3 bg-neutral-50/40 dark:bg-neutral-950/30 ${
+          activeTab === 'transcript' ? 'min-h-[360px] sm:min-h-[440px] max-h-[580px]' : 'min-h-[160px] max-h-[260px] sm:max-h-[300px]'
+        }`}>
           <div className="flex items-center justify-between text-xs text-neutral-500 dark:text-neutral-400 pb-1 border-b border-neutral-200/40 dark:border-neutral-800">
-            <span className="font-medium uppercase tracking-wider text-[10px]">Real-Time Transcript</span>
+            <span className="font-semibold uppercase tracking-wider text-[10px] flex items-center gap-1.5">
+              <span>{t.liveVoiceTabTranscript || 'Real-Time Transcript'}</span>
+              <span className="text-neutral-400 font-normal">({SUPPORTED_LANGUAGES.find((l) => l.code === conversationLanguage)?.nativeName || conversationLanguage})</span>
+            </span>
             <div className="flex items-center gap-3">
               {messages.length > 1 && (
                 <>
@@ -487,10 +638,10 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
                     type="button"
                     onClick={handleCopyTranscript}
                     className="inline-flex items-center gap-1 hover:text-neutral-700 dark:hover:text-neutral-200 transition-colors cursor-pointer"
-                    title="Copy full transcript"
+                    title={t.liveVoiceCopy || 'Copy full transcript'}
                   >
                     {copied ? <Check className="h-3 w-3 text-emerald-500" /> : <Copy className="h-3 w-3" />}
-                    <span>{copied ? 'Copied' : 'Copy'}</span>
+                    <span>{copied ? 'Copied' : (t.copy || 'Copy')}</span>
                   </button>
                   <button
                     type="button"
@@ -505,7 +656,7 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
                     type="button"
                     onClick={clearMessages}
                     className="inline-flex items-center gap-1 hover:text-rose-600 transition-colors cursor-pointer"
-                    title="Clear transcript"
+                    title={t.liveVoiceClear || 'Clear transcript'}
                   >
                     <Trash2 className="h-3 w-3" />
                     <span>Clear</span>
@@ -544,7 +695,7 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
                       <HumanoidIcon size={13} className="text-cyan-500" isSpeaking={isModelSpeaking} />
                     )}
                     <span className="text-[10px] font-semibold tracking-wider uppercase text-neutral-400 dark:text-neutral-500">
-                      {isUser ? 'You' : `Zena (${voice})`}
+                      {isUser ? (t.liveVoiceYou || 'You') : `Zena (${voice})`}
                     </span>
                   </div>
                   <div

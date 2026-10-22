@@ -30,6 +30,18 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
     <script>
       (function() {
+        // Global PWA prompt capture so install events before React mount are never missed
+        window.__pwaDeferredPrompt = null;
+        window.addEventListener('beforeinstallprompt', function(e) {
+          e.preventDefault();
+          window.__pwaDeferredPrompt = e;
+          window.dispatchEvent(new CustomEvent('pwa-prompt-ready', { detail: e }));
+        });
+        window.addEventListener('appinstalled', function() {
+          window.__pwaDeferredPrompt = null;
+          window.dispatchEvent(new CustomEvent('pwa-installed'));
+        });
+
         // Prevent Vite HMR WebSocket connection failure in sandboxed preview iframe
         if (typeof window !== 'undefined' && window.WebSocket) {
           var NativeWebSocket = window.WebSocket;

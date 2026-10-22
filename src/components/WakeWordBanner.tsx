@@ -12,6 +12,7 @@ interface WakeWordBannerProps {
   onToggle: () => void;
   onRequestMicPermission?: () => Promise<boolean>;
   onSimulate: (phrase?: string) => void;
+  onCallZena?: () => void;
   errorStatus?: string | null;
   currentLanguage?: string;
   isZenaOpen?: boolean;
@@ -22,10 +23,11 @@ export const WakeWordBanner: React.FC<WakeWordBannerProps> = ({
   isListening,
   isSupported,
   needsPermission = false,
-  lastDetectedPhrase,
+  lastDetectedPhrase: _lastDetectedPhrase,
   onToggle,
   onRequestMicPermission,
   onSimulate,
+  onCallZena,
   errorStatus,
   currentLanguage = 'en',
   isZenaOpen = false,
@@ -46,36 +48,7 @@ export const WakeWordBanner: React.FC<WakeWordBannerProps> = ({
 
   return (
     <>
-      {/* Wake Word Activation Popup Notification */}
-      {lastDetectedPhrase && (
-        <div
-          id="wake-word-detected-toast"
-          role="alert"
-          className="fixed top-20 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3.5 px-4 sm:px-6 py-3 rounded-2xl bg-neutral-900/95 dark:bg-black/95 text-white border border-cyan-500/50 shadow-2xl shadow-cyan-500/30 backdrop-blur-md animate-in slide-in-from-top-4 duration-300 pointer-events-auto"
-        >
-          <div className="relative flex items-center justify-center h-9 w-9 rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-400/40">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-60"></span>
-            <HumanoidIcon size={20} animated={true} isListening={true} />
-          </div>
-          <div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-cyan-400">
-                {t.wakeBannerDetected || 'Wake Word Detected'}
-              </span>
-              <span className="text-neutral-400">•</span>
-              <span className="text-xs font-mono text-cyan-200">
-                &ldquo;{lastDetectedPhrase}&rdquo;
-              </span>
-            </div>
-            <p className="text-xs sm:text-sm font-semibold text-neutral-100 flex items-center gap-1.5">
-              <Sparkles className="h-3.5 w-3.5 text-amber-400" />
-              {t.wakeBannerAwakening || 'Awakening Zena for live voice deliberation...'}
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* Floating Wake Word Status & Control Pill (Docked neatly beside Zena avatar, hidden when Zena sheet is open) */}
+      {/* Floating Wake Word Status & Control Pill (Docked neatly beside Zena avatar, hidden when live voice modal is open) */}
       {!isZenaOpen && (
         <div 
           id="wake-word-status-bar"
@@ -143,16 +116,16 @@ export const WakeWordBanner: React.FC<WakeWordBannerProps> = ({
 
           <div className="h-3.5 w-px bg-neutral-200 dark:bg-neutral-700 mx-0.5"></div>
 
-          {/* Instant Test Wake Trigger */}
+          {/* One Call Away: Direct Live Conversation Trigger */}
           <button
-            id="wake-word-test-trigger-btn"
+            id="wake-word-call-live-btn"
             type="button"
-            onClick={() => onSimulate('Hey Zena')}
-            className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-cyan-50 dark:bg-cyan-950/60 hover:bg-cyan-100 dark:hover:bg-cyan-900/60 text-cyan-700 dark:text-cyan-300 font-semibold text-[11px] border border-cyan-200/70 dark:border-cyan-800/70 transition-colors cursor-pointer"
-            title="Simulate speaking 'Hey Zena' to test awakening and audio chime (Shortcut: Alt+Z)"
+            onClick={onCallZena || (() => onSimulate('Hey Zena'))}
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-700 hover:to-indigo-700 text-white font-semibold text-[11px] shadow-xs active:scale-95 transition-all cursor-pointer min-h-[28px]"
+            title="One Call Away: Direct to live real-time voice conversation with Zena"
           >
-            <Play className="h-2.5 w-2.5 fill-current" />
-            <span>{t.wakeBannerTest || 'Test Wake'}</span>
+            <Radio className="h-3 w-3 animate-pulse" />
+            <span>Call Zena</span>
           </button>
 
           {/* Info toggle button */}

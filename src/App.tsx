@@ -107,7 +107,9 @@ export default function App() {
     enabledByDefault: true,
     currentLanguage,
     onWakeWordDetected: () => {
-      setIsZenaWidgetOpen(true);
+      // Direct to live conversation once called: automatically live, no popups needed
+      setIsZenaWidgetOpen(false);
+      setShowLiveVoiceModal(true);
     },
   });
 
@@ -895,10 +897,17 @@ export default function App() {
         lastDetectedPhrase={lastDetectedPhrase}
         onToggle={toggleWakeWord}
         onRequestMicPermission={requestMicPermission}
-        onSimulate={simulateWakeWord}
+        onSimulate={() => {
+          setIsZenaWidgetOpen(false);
+          setShowLiveVoiceModal(true);
+        }}
+        onCallZena={() => {
+          setIsZenaWidgetOpen(false);
+          setShowLiveVoiceModal(true);
+        }}
         errorStatus={wakeWordError}
         currentLanguage={currentLanguage}
-        isZenaOpen={isZenaWidgetOpen}
+        isZenaOpen={showLiveVoiceModal}
       />
 
       {/* Interactive Responsive Floating Voice Persona Widget: ZENA */}

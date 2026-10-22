@@ -1,6 +1,7 @@
 import express from "express";
 import http from "http";
 import path from "path";
+import fs from "fs";
 import dotenv from "dotenv";
 import { GoogleGenAI, Type, Modality } from "@google/genai";
 import { createServer as createViteServer } from "vite";
@@ -693,19 +694,44 @@ Return your response in clean JSON with fields:
   }
 });
 
+const LANGUAGE_NAMES: Record<string, string> = {
+  en: "English",
+  es: "Spanish (Español)",
+  fr: "French (Français)",
+  de: "German (Deutsch)",
+  zh: "Chinese Simplified (简体中文)",
+  ja: "Japanese (日本語)",
+  ko: "Korean (한국어)",
+  pt: "Portuguese (Português)",
+  it: "Italian (Italiano)",
+  nl: "Dutch (Nederlands)",
+  ru: "Russian (Русский)",
+  ar: "Arabic (العربية)",
+  hi: "Hindi (हिन्दी)",
+  tr: "Turkish (Türkçe)",
+  pl: "Polish (Polski)",
+  vi: "Vietnamese (Tiếng Việt)",
+  id: "Indonesian (Bahasa Indonesia)",
+  sv: "Swedish (Svenska)",
+  tl: "Filipino (Tagalog)",
+  da: "Danish (Dansk)",
+};
+
 // Zena Voice Persona Chat Endpoint
 app.post("/api/zena/chat", async (req, res) => {
   try {
-    const { message, decisionContext, conversationHistory } = req.body;
+    const { message, decisionContext, conversationHistory, language = "en" } = req.body;
     if (!message || typeof message !== "string") {
       return res.status(400).json({ error: "Message is required" });
     }
 
     const ai = getGeminiClient();
+    const targetLang = LANGUAGE_NAMES[language] || language || "English";
     const systemInstruction = `You are Zena, the analytical, concise voice persona of Arbitr.
 Your sole mandate is to help users weigh criteria, score pros and cons, assess trade-offs, and decisively break decision ties.
 Core Directives:
 - Identity: You are Zena, the voice arbiter of Arbitr. Speak with an incisive, perceptive, objective, and intellectually honest tone.
+- CRITICAL CONVERSATION LANGUAGE REQUIREMENT: You MUST converse, advise, and respond strictly, purely, and completely in ${targetLang}. Never mix languages, never switch to English or another language mid-response, and never use terms from other languages unless explicitly requested by the user. Every single sentence of your response must be in ${targetLang}.
 - Analytical Focus: Help the user critically evaluate decision dimensions, uncover hidden blind spots, assess weight priorities, and challenge emotional or cognitive biases (like loss aversion or status quo bias).
 - Tiebreaker Precision: When two options are locked in a dilemma or deadlock, isolate the single decisive "Tiebreaker Factor" and deliver a clear, actionable verdict with unflinching conviction.
 - CRITICAL CONCISENESS RULE: Every spoken response MUST be strictly within 1 to 3 spoken sentences. Never monologue, never output bulleted walls of text, and never exceed 3 sentences. Be direct, punchy, conversational, and impactful.
@@ -812,7 +838,7 @@ function setupLiveVoiceWebSocket(server: http.Server) {
       }
     };
 
-    async function initLiveSession(voiceName: string = "Zena", decisionContext: string = "") {
+    async function initLiveSession(voiceName: string = "Zena", decisionContext: string = "", languageCode: string = "en") {
       try {
         const ai = getGeminiClient();
         // Map Zena and other aliases to Gemini Live supported prebuilt voices
@@ -827,11 +853,13 @@ function setupLiveVoiceWebSocket(server: http.Server) {
           Fenrir: "Fenrir",
         };
         const prebuiltVoice = liveVoiceMap[voiceName] || "Zephyr";
+        const targetLang = LANGUAGE_NAMES[languageCode] || languageCode || "English";
 
         const systemInstruction = `You are Zena, the analytical, concise voice persona of Arbitr.
 Your sole mandate is to help users weigh criteria, score pros and cons, assess trade-offs, and decisively break decision ties.
 Core Directives:
 - Identity: You are Zena, the voice arbiter of Arbitr. The user addresses you as Zena. When activated or greeted, greet them with crisp, attentive focus.
+- CRITICAL CONVERSATION LANGUAGE REQUIREMENT: You MUST speak, converse, and transcribe strictly, purely, and completely in ${targetLang}. Never mix multiple languages, never switch to English or another language mid-turn, and never output foreign words unless the user explicitly commands you to speak in another language. All spoken audio and output transcriptions must be entirely in ${targetLang}.
 - Analytical Focus: Help the user critically evaluate decision dimensions, uncover hidden blind spots, assess weight priorities, and challenge emotional or cognitive biases (like loss aversion or status quo bias).
 - Tiebreaker Precision: When two options are locked in a dilemma or deadlock, isolate the single decisive "Tiebreaker Factor" and deliver a clear, actionable verdict with unflinching conviction.
 - CRITICAL CONCISENESS RULE: Every spoken response MUST be strictly within 1 to 3 spoken sentences. Never monologue, never output bulleted walls of text, and never exceed 3 sentences. Be direct, punchy, conversational, and impactful.
@@ -855,12 +883,14 @@ ${decisionContext ? `\nActive Arbitr Dilemma Context:\n${decisionContext}` : ""}
           callbacks: {
             onopen: () => {
               isLiveConnected = true;
-              console.log("[Live Voice] Gemini Live connection established for voice:", voiceName, `(mapped to ${prebuiltVoice})`);
+              console.log("[Live Voice] Gemini Live connection established for voice:", voiceName, `(mapped to ${prebuiltVoice}) in language:`, targetLang);
               sendToClient({
                 type: "ready",
-                message: "Connected to Gemini 3.1 Live API as Zena",
+                message: `Connected to Gemini 3.1 Live API as Zena (${targetLang})`,
                 voice: voiceName,
                 backendVoice: prebuiltVoice,
+                language: languageCode,
+                languageName: targetLang,
                 model: "gemini-3.1-flash-live-preview",
               });
 
@@ -962,14 +992,14 @@ ${decisionContext ? `\nActive Arbitr Dilemma Context:\n${decisionContext}` : ""}
             liveSession = null;
             isLiveConnected = false;
           }
-          await initLiveSession(msg.voice, msg.decisionContext);
+          await initLiveSession(msg.voice, msg.decisionContext, msg.language || "en");
           return;
         }
 
         if (!liveSession || !isLiveConnected) {
           queuedClientMessages.push(msg);
           if (!liveSession) {
-            await initLiveSession();
+            await initLiveSession(msg.voice, msg.decisionContext, msg.language || "en");
           }
           return;
         }
@@ -1005,6 +1035,37 @@ async function startServer() {
 
   // Setup WebSocket server for Gemini Live
   setupLiveVoiceWebSocket(server);
+
+  // PWA Service Worker & Web App Manifest MIME Type and static routing
+  app.get(["/manifest.webmanifest", "/manifest.json"], (_req, res, next) => {
+    const manifestPath = path.join(process.cwd(), "public", "manifest.webmanifest");
+    if (fs.existsSync(manifestPath)) {
+      res.setHeader("Content-Type", "application/manifest+json; charset=utf-8");
+      return res.sendFile(manifestPath);
+    }
+    next();
+  });
+
+  // Ensure Service Worker scripts and workbox modules are strictly served as application/javascript
+  app.use((req, res, next) => {
+    const rawUrl = req.url || "";
+    if (
+      rawUrl.includes("dev-sw.js") ||
+      rawUrl.includes("sw.js") ||
+      rawUrl.includes("workbox-") ||
+      rawUrl.includes("virtual:pwa-register")
+    ) {
+      const origSetHeader = res.setHeader.bind(res);
+      res.setHeader = function (name: string, val: any) {
+        if (typeof name === "string" && name.toLowerCase() === "content-type") {
+          return origSetHeader("Content-Type", "application/javascript; charset=utf-8");
+        }
+        return origSetHeader(name, val);
+      };
+      res.setHeader("Content-Type", "application/javascript; charset=utf-8");
+    }
+    next();
+  });
 
   // Vite middleware in dev or static serving in prod
   if (process.env.NODE_ENV !== "production") {

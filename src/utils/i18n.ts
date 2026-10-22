@@ -259,6 +259,19 @@ export interface TranslationDictionary {
   liveVoiceWakePrompt?: string;
   verdictVoiceDescription?: string;
   verdictVoiceButton?: string;
+  liveVoiceLanguageLabel?: string;
+  liveVoiceConversationLanguage?: string;
+  liveVoiceTranscriptLangBadge?: string;
+  liveVoiceYou?: string;
+  liveVoiceTabStudio?: string;
+  liveVoiceTabTranscript?: string;
+  liveVoiceTabContext?: string;
+  liveVoiceConnectedMessage?: string;
+  zenaWelcomeMessage?: string;
+  zenaTranscriptCleared?: string;
+  zenaTabConversation?: string;
+  zenaTabContext?: string;
+  zenaTabSettings?: string;
   verdictGutPromptLabel?: string;
   gutCheckHide?: string;
   gutCheckInterpret?: string;
@@ -425,6 +438,7 @@ export interface TranslationDictionary {
   liveVoiceUnmute?: string;
   liveVoiceClear?: string;
   liveVoiceCopy?: string;
+  copy?: string;
   liveVoiceEnd?: string;
   liveVoiceClose?: string;
   wakeBannerDetected?: string;
@@ -706,8 +720,21 @@ export const TRANSLATIONS: Record<string, TranslationDictionary> = {
     liveVoiceUnmute: 'Unmute Microphone',
     liveVoiceClear: 'Clear conversation transcript',
     liveVoiceCopy: 'Copy conversation',
+    copy: 'Copy',
     liveVoiceEnd: 'End Deliberation',
-    liveVoiceClose: 'Close voice conversation',
+    liveVoiceLanguageLabel: 'Language:',
+    liveVoiceConversationLanguage: 'Conversation Language',
+    liveVoiceTranscriptLangBadge: 'Language',
+    liveVoiceYou: 'You',
+    liveVoiceTabStudio: 'Live Studio',
+    liveVoiceTabTranscript: 'Transcript',
+    liveVoiceTabContext: 'Decision Context',
+    liveVoiceConnectedMessage: 'Connected to Gemini 3.1 Live ({voice} voice • {lang}). Speak or type your thoughts.',
+    zenaWelcomeMessage: "I am Zena, your decision arbiter. Speak your dilemma or tap a criteria prompt, and I'll isolate the winning tiebreaker.",
+    zenaTranscriptCleared: 'Transcript cleared. How can I arbitrate your next decision?',
+    zenaTabConversation: 'Conversation',
+    zenaTabContext: 'Dilemma Context',
+    zenaTabSettings: 'Voice & Language',
     wakeBannerDetected: 'Wake Word Detected',
     wakeBannerAwakening: 'Awakening Zena for live voice deliberation...',
     wakeBannerEnableMic: 'Enable Mic for Wake Word',
@@ -1149,6 +1176,19 @@ export const TRANSLATIONS: Record<string, TranslationDictionary> = {
     liveVoiceCopy: 'Copiar conversación',
     liveVoiceEnd: 'Finalizar Deliberación',
     liveVoiceClose: 'Cerrar conversación de voz',
+    liveVoiceLanguageLabel: 'Idioma:',
+    liveVoiceConversationLanguage: 'Idioma de Conversación',
+    liveVoiceTranscriptLangBadge: 'Idioma',
+    liveVoiceYou: 'Tú',
+    liveVoiceTabStudio: 'Estudio en Vivo',
+    liveVoiceTabTranscript: 'Transcripción',
+    liveVoiceTabContext: 'Contexto del Dilema',
+    liveVoiceConnectedMessage: 'Conectado a Gemini 3.1 Live (voz {voice} • {lang}). Habla o escribe tus ideas.',
+    zenaWelcomeMessage: 'Soy Zena, tu árbitro de decisiones. Expresa tu dilema o toca una sugerencia de criterio, y aislaré el factor decisivo.',
+    zenaTranscriptCleared: 'Transcripción borrada. ¿Cómo puedo ayudarte a decidir?',
+    zenaTabConversation: 'Conversación',
+    zenaTabContext: 'Contexto del Dilema',
+    zenaTabSettings: 'Voz e Idioma',
     wakeBannerDetected: 'Palabra de Activación Detectada',
     wakeBannerAwakening: 'Despertando a Zena para deliberación por voz...',
     wakeBannerEnableMic: 'Habilitar Micrófono para Activación',

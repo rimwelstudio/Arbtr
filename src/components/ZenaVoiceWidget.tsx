@@ -22,7 +22,7 @@ import {
 } from 'lucide-react';
 import { ParticleVoiceIcon } from './HumanoidIcon';
 import { DecisionAnalysisResult } from '../types';
-import { getTranslation } from '../utils/i18n';
+import { getTranslation, SUPPORTED_LANGUAGES } from '../utils/i18n';
 
 export interface ZenaMessage {
   id: string;
@@ -56,6 +56,46 @@ const ARBITR_DELIBERATION_PROMPTS = [
   { label: '🧠 Check cognitive bias', prompt: 'Am I falling for loss aversion, status quo bias, or sunk cost fallacy here?' },
 ];
 
+const getLocalizedPrompts = (lang: string) => {
+  if (lang === 'es') {
+    return [
+      { label: '⚖️ Romper el empate', prompt: 'Entre mis opciones, ¿cuál gana objetivamente y cuál es el factor decisivo?' },
+      { label: '📊 Pesar pros y contras', prompt: '¿Qué opción tiene la ventaja más sólida frente a riesgos ocultos?' },
+      { label: '🛡️ Detectar puntos ciegos', prompt: '¿Qué punto ciego o mitigación crítica estoy pasando por alto?' },
+      { label: '⏳ Prueba 10-10-10', prompt: 'Aplica la prueba de arrepentimiento 10-10-10 a mi dilema: 10 minutos, 10 meses y 10 años.' },
+      { label: '🧠 Sesgos cognitivos', prompt: '¿Estoy cayendo en aversión a la pérdida o sesgo del statu quo?' },
+    ];
+  }
+  if (lang === 'fr') {
+    return [
+      { label: '⚖️ Trancher le dilemme', prompt: 'Entre mes options, laquelle l’emporte objectivement et quel est le facteur décisif ?' },
+      { label: '📊 Peser le pour et le contre', prompt: 'Quelle option présente le meilleur avantage face aux risques cachés ?' },
+      { label: '🛡️ Repérer les angles morts', prompt: 'Quel angle mort critique ou risque suis-je en train de négliger ?' },
+      { label: '⏳ Test du regret 10-10-10', prompt: 'Applique le test 10-10-10 à mon dilemme : 10 minutes, 10 mois, 10 ans.' },
+      { label: '🧠 Vérifier les biais', prompt: 'Suis-je influencé par l’aversion à la perte ou le statu quo ?' },
+    ];
+  }
+  if (lang === 'de') {
+    return [
+      { label: '⚖️ Patt brechen', prompt: 'Welche Option gewinnt objektiv und was ist der entscheidende Faktor?' },
+      { label: '📊 Vor- und Nachteile', prompt: 'Welche Option hat das stärkste Potenzial gegenüber versteckten Risiken?' },
+      { label: '🛡️ Blinde Flecken', prompt: 'Welchen kritischen blinden Fleck übersehe ich gerade?' },
+      { label: '⏳ 10-10-10 Reuetest', prompt: 'Wende den 10-10-10 Reuetest an: 10 Minuten, 10 Monate und 10 Jahre.' },
+      { label: '🧠 Kognitive Verzerrung', prompt: 'Unterliege ich Verlustaversion oder dem Status-quo-Effekt?' },
+    ];
+  }
+  if (lang === 'tl') {
+    return [
+      { label: '⚖️ Basagin ang Tabla', prompt: 'Sa pagitan ng aking mga opsyon, alin ang panalo at ano ang mapagpasyang dahilan?' },
+      { label: '📊 Timbangin ang Bentahe', prompt: 'Aling opsyon ang may pinakamatatag na bentahe laban sa mga panganib?' },
+      { label: '🛡️ Tingnan ang Bulag na Panig', prompt: 'Anong kritikal na panganib o anggulo ang aking nalalampasan?' },
+      { label: '⏳ 10-10-10 Pagsubok', prompt: 'Ilapat ang 10-10-10 regret test sa aking desisyon: 10 minuto, 10 buwan, 10 taon.' },
+      { label: '🧠 Suriin ang Bias', prompt: 'Nahuhulog ba ako sa loss aversion o status quo bias?' },
+    ];
+  }
+  return ARBITR_DELIBERATION_PROMPTS;
+};
+
 export const ZenaVoiceWidget: React.FC<ZenaVoiceWidgetProps> = ({
   activeDecision,
   currentLanguage = 'en',
@@ -82,6 +122,7 @@ export const ZenaVoiceWidget: React.FC<ZenaVoiceWidgetProps> = ({
   );
 
   const [isMinimized, setIsMinimized] = useState<boolean>(false);
+  const [sheetTab, setSheetTab] = useState<'conversation' | 'context' | 'settings'>('conversation');
   const [status, setStatus] = useState<ZenaStatus>('idle');
   const [isMicActive, setIsMicActive] = useState<boolean>(false);
   const [isSpeakerMuted, setIsSpeakerMuted] = useState<boolean>(false);
@@ -119,17 +160,34 @@ export const ZenaVoiceWidget: React.FC<ZenaVoiceWidgetProps> = ({
   });
   const [isDragging, setIsDragging] = useState<boolean>(false);
 
-  // Initial welcome message calibrated to 1-3 spoken sentences
+  // Initial welcome message calibrated to 1-3 spoken sentences in current language
   const [messages, setMessages] = useState<ZenaMessage[]>(() => {
     return [
       {
         id: 'zena-welcome',
         role: 'model',
-        text: "I am Zena, your decision arbiter. Speak your dilemma or tap a criteria prompt, and I'll isolate the winning tiebreaker.",
+        text: t.zenaWelcomeMessage || "I am Zena, your decision arbiter. Speak your dilemma or tap a criteria prompt, and I'll isolate the winning tiebreaker.",
         timestamp: Date.now(),
       },
     ];
   });
+
+  // Keep initial welcome message synchronized when language switches
+  useEffect(() => {
+    setMessages((prev) => {
+      if (prev.length === 1 && prev[0].id === 'zena-welcome') {
+        return [
+          {
+            id: 'zena-welcome',
+            role: 'model',
+            text: t.zenaWelcomeMessage || "I am Zena, your decision arbiter. Speak your dilemma or tap a criteria prompt, and I'll isolate the winning tiebreaker.",
+            timestamp: Date.now(),
+          },
+        ];
+      }
+      return prev;
+    });
+  }, [currentLanguage, t.zenaWelcomeMessage]);
 
   // Refs for Speech Recognition, Synth, Draggable Touch Handling, and Timers
   const recognitionRef = useRef<any>(null);
@@ -338,6 +396,7 @@ export const ZenaVoiceWidget: React.FC<ZenaVoiceWidgetProps> = ({
             message: userInput.trim(),
             decisionContext: decisionContextString,
             conversationHistory: history,
+            language: currentLanguage,
           }),
         });
 
@@ -548,7 +607,7 @@ export const ZenaVoiceWidget: React.FC<ZenaVoiceWidgetProps> = ({
     return () => window.removeEventListener('resize', handleResize);
   }, [clampPosition]);
 
-  // Safe Avatar Press Handler for Mobile Touch & Desktop Click
+  // Safe Avatar Press Handler for Mobile Touch & Desktop Click - One Call Away Direct to Live
   const handleAvatarPress = useCallback(
     (e?: React.SyntheticEvent) => {
       if (e) {
@@ -560,10 +619,14 @@ export const ZenaVoiceWidget: React.FC<ZenaVoiceWidgetProps> = ({
       lastToggleTimeRef.current = now;
 
       unlockAudioContext();
-      setIsOpen((prev) => !prev);
-      setIsMinimized(false);
+      if (onOpenLiveModal) {
+        onOpenLiveModal();
+      } else {
+        setIsOpen((prev) => !prev);
+        setIsMinimized(false);
+      }
     },
-    [setIsOpen, unlockAudioContext]
+    [onOpenLiveModal, setIsOpen, unlockAudioContext]
   );
 
   // Touch Event Listeners for Draggable Mobile Behavior
@@ -1077,284 +1140,455 @@ export const ZenaVoiceWidget: React.FC<ZenaVoiceWidgetProps> = ({
             </div>
           ) : (
             <>
-              {/* Active Decision Context Bar */}
-              {activeDecision && (
-                <div className="shrink-0 px-4 py-2 bg-cyan-50/70 dark:bg-cyan-950/40 border-b border-cyan-100 dark:border-cyan-900/60 flex items-center justify-between text-xs gap-2">
-                  <div className="flex items-center gap-1.5 truncate text-cyan-950 dark:text-cyan-200">
-                    <Scale className="h-3.5 w-3.5 text-cyan-600 dark:text-cyan-400 shrink-0" />
-                    <span className="font-semibold truncate">
-                      {activeDecision.options?.map((o) => (typeof o === 'string' ? o : o.name)).join(' vs ')}
-                    </span>
-                  </div>
-                  {activeDecision.verdict && (
-                    <span className="shrink-0 font-mono text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-900 dark:text-emerald-200 font-bold border border-emerald-300 dark:border-emerald-800">
-                      Winner: {activeDecision.verdict.recommendedOptionName}
-                    </span>
-                  )}
-                </div>
-              )}
-
-              {/* Audio Reactive Waveform Banner */}
-              <div className="shrink-0 px-4 py-2 bg-neutral-900 text-white dark:bg-neutral-950 flex items-center justify-between gap-3">
-                <div className="flex items-center gap-2 text-xs font-mono">
-                  <Radio
-                    className={`h-3.5 w-3.5 ${
-                      status === 'listening'
-                        ? 'text-emerald-400 animate-pulse'
-                        : status === 'speaking'
-                        ? 'text-cyan-400 animate-pulse'
-                        : 'text-neutral-400'
-                    }`}
-                  />
-                  <span className="text-neutral-200 text-[11px]">
-                    {status === 'speaking'
-                      ? 'ZENA Spoken Voice Active'
-                      : status === 'listening'
-                      ? 'Listening to your speech...'
-                      : status === 'deliberating'
-                      ? 'Synthesizing tiebreaker...'
-                      : 'Voice Arbiter Ready'}
-                  </span>
-                </div>
-
-                {/* Animated Waveform Bars */}
-                <div className="flex items-center gap-1 h-3.5">
-                  {[40, 70, 100, 60, 85, 45, 90, 30].map((h, idx) => {
-                    const dynamicHeight =
-                      status === 'listening' || status === 'speaking'
-                        ? Math.max(20, Math.min(100, (audioLevel * 100 + h * 0.4) % 100))
-                        : 20;
-                    return (
-                      <span
-                        key={idx}
-                        className={`w-0.5 rounded-full transition-all duration-100 ${
-                          status === 'speaking'
-                            ? 'bg-cyan-400'
-                            : status === 'listening'
-                            ? 'bg-emerald-400'
-                            : 'bg-neutral-600'
-                        }`}
-                        style={{ height: `${dynamicHeight}%` }}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Notice or Error Alert if any */}
-              {errorMessage && (
-                <div className="shrink-0 px-4 py-2 bg-amber-50 dark:bg-amber-950/60 border-b border-amber-300 dark:border-amber-700/80 text-[11px] text-amber-950 dark:text-amber-100 flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-1.5 min-w-0">
-                    <Info className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
-                    <span className="truncate">{errorMessage}</span>
-                  </div>
+              {/* Zena Sheet Navigation Tabs */}
+              <div className="shrink-0 flex items-center justify-between px-4 py-2 bg-neutral-100/80 dark:bg-neutral-900 border-b border-neutral-200/80 dark:border-neutral-800 text-xs">
+                <div className="inline-flex p-0.5 rounded-xl bg-white dark:bg-neutral-800 border border-neutral-200/80 dark:border-neutral-700 shadow-2xs">
                   <button
+                    id="zena-tab-conversation-btn"
                     type="button"
-                    onClick={() => setErrorMessage(null)}
-                    className="text-amber-800 dark:text-amber-300 hover:underline font-bold shrink-0 cursor-pointer"
+                    onClick={() => setSheetTab('conversation')}
+                    className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                      sheetTab === 'conversation'
+                        ? 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-950 shadow-xs'
+                        : 'text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white'
+                    }`}
                   >
-                    Dismiss
+                    <span>💬 {t.zenaTabConversation || 'Conversation'}</span>
+                  </button>
+                  <button
+                    id="zena-tab-context-btn"
+                    type="button"
+                    onClick={() => setSheetTab('context')}
+                    className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                      sheetTab === 'context'
+                        ? 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-950 shadow-xs'
+                        : 'text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white'
+                    }`}
+                  >
+                    <span>🎯 {t.zenaTabContext || 'Context'}</span>
+                  </button>
+                  <button
+                    id="zena-tab-settings-btn"
+                    type="button"
+                    onClick={() => setSheetTab('settings')}
+                    className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                      sheetTab === 'settings'
+                        ? 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-950 shadow-xs'
+                        : 'text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white'
+                    }`}
+                  >
+                    <span>🌐 {t.zenaTabSettings || 'Voice & Lang'}</span>
                   </button>
                 </div>
-              )}
 
-              {/* Browser Speech Dictation Notice (Fallback for mobile browsers without Web Speech) */}
-              {!speechSupported && (
-                <div className="shrink-0 px-4 py-2 bg-indigo-50 dark:bg-indigo-950/60 border-b border-indigo-200 dark:border-indigo-800 text-[11px] text-indigo-950 dark:text-indigo-100 flex items-center justify-between gap-2">
-                  <span>Voice dictation is unsupported in this mobile browser. You can type or launch Gemini Live.</span>
-                  {onOpenLiveModal && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsOpen(false);
-                        onOpenLiveModal();
-                      }}
-                      className="font-bold text-indigo-600 dark:text-indigo-300 underline shrink-0 cursor-pointer"
-                    >
-                      Open Live Mode
-                    </button>
-                  )}
-                </div>
-              )}
+                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md bg-neutral-200/60 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 uppercase">
+                  {currentLanguage}
+                </span>
+              </div>
 
-              {/* SCROLLABLE TRANSCRIPT BOX (Flex-1 auto scroll on mobile) */}
-              <div
-                id="zena-transcript-box"
-                className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-4 space-y-3.5 text-xs text-neutral-800 dark:text-neutral-200 bg-neutral-50/50 dark:bg-neutral-900/50"
-              >
-                {messages.map((m) => {
-                  const isUser = m.role === 'user';
-                  return (
-                    <div
-                      key={m.id}
-                      className={`flex gap-2.5 ${isUser ? 'justify-end' : 'justify-start'}`}
-                    >
-                      {!isUser && (
-                        <div className="h-6 w-6 rounded-full bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center text-white shrink-0 mt-0.5 shadow-xs">
-                          <ParticleVoiceIcon size={14} isSpeaking={status === 'speaking'} animated={false} />
+              {/* TAB 1: CONTEXT VIEW */}
+              {sheetTab === 'context' && (
+                <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3.5 text-xs text-neutral-800 dark:text-neutral-200 bg-neutral-50/50 dark:bg-neutral-900/50">
+                  {activeDecision ? (
+                    <div className="space-y-3">
+                      <div className="p-3.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800">
+                        <span className="text-[10px] uppercase font-bold text-neutral-400 dark:text-neutral-500 tracking-wider">Active Dilemma</span>
+                        <h4 className="font-bold text-sm text-neutral-900 dark:text-white mt-1">{activeDecision.title}</h4>
+                        {activeDecision.context && (
+                          <p className="mt-1 text-neutral-600 dark:text-neutral-300 text-xs leading-relaxed">{activeDecision.context}</p>
+                        )}
+                      </div>
+
+                      <div className="p-3.5 rounded-xl border border-cyan-200 dark:border-cyan-800/60 bg-cyan-50/40 dark:bg-cyan-950/30">
+                        <span className="text-[10px] uppercase font-bold text-cyan-700 dark:text-cyan-300 tracking-wider">Options Under Review</span>
+                        <div className="mt-1.5 flex flex-wrap gap-1.5">
+                          {activeDecision.options?.map((opt, i) => (
+                            <span key={i} className="px-2.5 py-1 rounded-lg bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-800 dark:text-neutral-200 font-semibold text-xs">
+                              {typeof opt === 'string' ? opt : opt.name}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      {activeDecision.verdict && (
+                        <div className="p-3.5 rounded-xl border border-emerald-200 dark:border-emerald-800/60 bg-emerald-50/40 dark:bg-emerald-950/30">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] uppercase font-bold text-emerald-800 dark:text-emerald-300 tracking-wider">Recommended Leader</span>
+                            <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900 text-emerald-900 dark:text-emerald-200">
+                              Winner
+                            </span>
+                          </div>
+                          <p className="font-bold text-sm text-emerald-950 dark:text-emerald-100 mt-1">
+                            {activeDecision.verdict.recommendedOptionName}
+                          </p>
+                          <p className="mt-2 text-xs text-neutral-700 dark:text-neutral-300 leading-relaxed">
+                            <strong className="text-neutral-900 dark:text-white">Tiebreaker Factor:</strong> {activeDecision.verdict.theTiebreakerFactor}
+                          </p>
+                          <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                            {activeDecision.verdict.coreReasoning}
+                          </p>
                         </div>
                       )}
 
-                      <div
-                        className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 shadow-2xs ${
-                          isUser
-                            ? 'bg-neutral-950 text-white dark:bg-neutral-100 dark:text-neutral-950 rounded-br-none'
-                            : 'bg-white dark:bg-neutral-800/95 border border-neutral-200/90 dark:border-neutral-700/80 text-neutral-900 dark:text-neutral-100 rounded-bl-none'
-                        }`}
+                      <button
+                        type="button"
+                        onClick={() => setSheetTab('conversation')}
+                        className="w-full py-2.5 rounded-xl bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 font-semibold text-xs text-center cursor-pointer shadow-xs hover:bg-neutral-800"
                       >
-                        {!isUser && (
-                          <div className="flex items-center justify-between gap-2 mb-1">
-                            <span className="font-bold text-[10px] text-cyan-600 dark:text-cyan-400 uppercase tracking-wider">
-                              ZENA • Decision Arbiter
-                            </span>
-                            <span className="text-[10px] text-neutral-400 dark:text-neutral-400 font-mono">
-                              {new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                            </span>
-                          </div>
-                        )}
-
-                        <p className="leading-relaxed text-xs sm:text-[13px] whitespace-pre-wrap">
-                          {m.text}
-                        </p>
-                      </div>
+                        Return to Conversation →
+                      </button>
                     </div>
-                  );
-                })}
-
-                {/* Interim Live Speech Transcript Bubble */}
-                {interimTranscript && (
-                  <div className="flex justify-end gap-2">
-                    <div className="max-w-[85%] rounded-2xl rounded-br-none px-3.5 py-2 bg-neutral-200/80 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 italic text-xs animate-pulse">
-                      &ldquo;{interimTranscript}...&rdquo;
+                  ) : (
+                    <div className="text-center py-10 text-neutral-500">
+                      <Scale className="h-8 w-8 mx-auto mb-2 text-neutral-400" />
+                      <p className="font-semibold text-xs">No active decision loaded.</p>
+                      <p className="text-[11px] mt-0.5">Start an analysis or load a template to bind context to Zena.</p>
                     </div>
-                  </div>
-                )}
-
-                {/* Deliberating Status Bubble */}
-                {status === 'deliberating' && (
-                  <div className="flex items-center gap-2 text-xs text-cyan-600 dark:text-cyan-400 italic font-mono pl-8">
-                    <span className="animate-spin h-3 w-3 border-2 border-cyan-500 border-t-transparent rounded-full" />
-                    <span>Zena is computing criteria &amp; trade-offs...</span>
-                  </div>
-                )}
-
-                <div ref={transcriptEndRef} />
-              </div>
-
-              {/* Quick Deliberation Prompts Slider */}
-              <div className="shrink-0 px-3 py-2 bg-white dark:bg-neutral-900 border-t border-neutral-100 dark:border-neutral-800 overflow-x-auto no-scrollbar">
-                <div className="flex items-center gap-1.5 whitespace-nowrap">
-                  {ARBITR_DELIBERATION_PROMPTS.map((item, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => {
-                        unlockAudioContext();
-                        sendToZena(item.prompt);
-                      }}
-                      className="inline-flex items-center gap-1 rounded-full bg-neutral-100 dark:bg-neutral-800 hover:bg-cyan-50 dark:hover:bg-cyan-950/60 hover:text-cyan-600 dark:hover:text-cyan-400 border border-neutral-300 dark:border-neutral-700 px-2.5 py-1 text-[11px] font-medium text-neutral-800 dark:text-neutral-100 transition-colors cursor-pointer min-h-[30px]"
-                    >
-                      {item.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Transcript Actions Bar */}
-              <div className="shrink-0 px-4 py-1.5 flex items-center justify-between text-[11px] text-neutral-600 dark:text-neutral-300 bg-neutral-50/50 dark:bg-neutral-900/50 border-t border-neutral-200/60 dark:border-neutral-800/60">
-                <span className="font-mono text-[10px]">Concise 1–3 Sentence Protocol</span>
-                <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={handleCopyTranscript}
-                    className="hover:text-neutral-900 dark:hover:text-white flex items-center gap-1 cursor-pointer min-h-[28px]"
-                    title="Copy conversation transcript"
-                  >
-                    {copied ? <Check className="h-3 w-3 text-emerald-500" /> : <Copy className="h-3 w-3" />}
-                    <span>{copied ? 'Copied' : 'Copy'}</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleClearTranscript}
-                    className="hover:text-rose-600 dark:hover:text-rose-400 flex items-center gap-1 cursor-pointer min-h-[28px]"
-                    title="Clear transcript history"
-                  >
-                    <Trash2 className="h-3 w-3" />
-                    <span>Clear</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Interactive Mic & Input Bar */}
-              <div className="shrink-0 p-3 sm:p-4 bg-white dark:bg-neutral-900 border-t border-neutral-200/80 dark:border-neutral-800 flex flex-col gap-2.5">
-                {/* Main Mic Toggle Control (Large touch target ≥ 52px for mobile) */}
-                <div className="flex items-center gap-2">
-                  <button
-                    id="zena-mic-toggle-btn"
-                    type="button"
-                    onClick={handleToggleMic}
-                    style={{ touchAction: 'manipulation' }}
-                    className={`relative flex items-center justify-center min-h-[52px] px-4 rounded-2xl font-bold text-xs sm:text-sm transition-all duration-200 cursor-pointer shadow-md flex-1 ${
-                      isMicActive
-                        ? 'bg-rose-600 hover:bg-rose-700 text-white ring-4 ring-rose-500/30'
-                        : 'bg-gradient-to-r from-cyan-600 via-indigo-600 to-purple-600 hover:opacity-95 text-white ring-2 ring-cyan-400/40 shadow-cyan-500/20 active:scale-[0.98]'
-                    }`}
-                  >
-                    {isMicActive ? (
-                      <div className="flex items-center gap-2">
-                        <span className="relative flex h-3 w-3">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
-                          <span className="relative inline-flex rounded-full h-3 w-3 bg-white" />
-                        </span>
-                        <MicOff className="h-4 w-4" />
-                        <span>Stop Mic (Listening...)</span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2">
-                        <Mic className="h-4 w-4" />
-                        <span>Start Speaking to ZENA</span>
-                      </div>
-                    )}
-                  </button>
-
-                  {/* Quick button to open Gemini Live if user wants full-duplex conversational voice */}
-                  {onOpenLiveModal && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        stopListening();
-                        setIsOpen(false);
-                        onOpenLiveModal();
-                      }}
-                      className="min-h-[52px] px-3 rounded-2xl border border-cyan-500/30 dark:border-cyan-500/40 bg-cyan-50/50 dark:bg-cyan-950/40 text-cyan-700 dark:text-cyan-300 font-semibold text-xs flex flex-col items-center justify-center gap-0.5 hover:bg-cyan-100 dark:hover:bg-cyan-900/50 transition-colors cursor-pointer"
-                      title="Open Gemini 3.1 Live Audio Modal"
-                    >
-                      <Radio className="h-3.5 w-3.5" />
-                      <span className="text-[10px] leading-tight">Live Studio</span>
-                    </button>
                   )}
                 </div>
+              )}
 
-                {/* Text Fallback Input Bar */}
-                <form onSubmit={handleTextSubmit} className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    value={textInput}
-                    onChange={(e) => setTextInput(e.target.value)}
-                    placeholder="Or type a question for Zena..."
-                    className="flex-1 min-h-[42px] px-3.5 py-1.5 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/90 text-xs text-neutral-900 dark:text-white placeholder:text-neutral-500 dark:placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                  />
-                  <button
-                    type="submit"
-                    disabled={!textInput.trim()}
-                    className="min-h-[42px] min-w-[42px] flex items-center justify-center rounded-xl bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors cursor-pointer"
-                    title="Send message to Zena"
-                    aria-label="Send"
+              {/* TAB 2: SETTINGS & LANGUAGE VIEW */}
+              {sheetTab === 'settings' && (
+                <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3.5 text-xs text-neutral-800 dark:text-neutral-200 bg-neutral-50/50 dark:bg-neutral-900/50">
+                  <div className="p-3.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 space-y-2">
+                    <span className="text-[10px] uppercase font-bold text-neutral-400 dark:text-neutral-500 tracking-wider">Active Language Alignment</span>
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold text-neutral-900 dark:text-white">
+                        {SUPPORTED_LANGUAGES.find((l) => l.code === currentLanguage)?.nativeName || currentLanguage}
+                      </span>
+                      <span className="font-mono text-xs px-2 py-0.5 rounded bg-neutral-100 dark:bg-neutral-700 uppercase font-bold">
+                        {currentLanguage}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-neutral-500 dark:text-neutral-400">
+                      Zena converses strictly in this language. To change application language, use the global selector in the top navbar.
+                    </p>
+                  </div>
+
+                  <div className="p-3.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 space-y-2.5">
+                    <span className="text-[10px] uppercase font-bold text-neutral-400 dark:text-neutral-500 tracking-wider">Voice & Audio Mode</span>
+                    <div className="flex items-center justify-between">
+                      <span>Audio Speech Synthesis:</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          unlockAudioContext();
+                          setIsSpeakerMuted((prev) => !prev);
+                        }}
+                        className={`px-3 py-1 rounded-lg text-xs font-semibold cursor-pointer ${
+                          isSpeakerMuted
+                            ? 'bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300'
+                            : 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300'
+                        }`}
+                      >
+                        {isSpeakerMuted ? 'Muted' : 'Spoken Voice Active'}
+                      </button>
+                    </div>
+
+                    {onOpenLiveModal && (
+                      <div className="pt-2 border-t border-neutral-200 dark:border-neutral-700">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            stopListening();
+                            setIsOpen(false);
+                            onOpenLiveModal();
+                          }}
+                          className="w-full flex items-center justify-center gap-2 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-indigo-600 text-white font-semibold text-xs shadow-xs hover:opacity-95 cursor-pointer"
+                        >
+                          <Radio className="h-3.5 w-3.5" />
+                          <span>Switch to Full Gemini Live Studio</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 3: CONVERSATION VIEW */}
+              {sheetTab === 'conversation' && (
+                <>
+                  {/* Active Decision Context Bar */}
+                  {activeDecision && (
+                    <div className="shrink-0 px-4 py-2 bg-cyan-50/70 dark:bg-cyan-950/40 border-b border-cyan-100 dark:border-cyan-900/60 flex items-center justify-between text-xs gap-2">
+                      <div className="flex items-center gap-1.5 truncate text-cyan-950 dark:text-cyan-200">
+                        <Scale className="h-3.5 w-3.5 text-cyan-600 dark:text-cyan-400 shrink-0" />
+                        <span className="font-semibold truncate">
+                          {activeDecision.options?.map((o) => (typeof o === 'string' ? o : o.name)).join(' vs ')}
+                        </span>
+                      </div>
+                      {activeDecision.verdict && (
+                        <span className="shrink-0 font-mono text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-900 dark:text-emerald-200 font-bold border border-emerald-300 dark:border-emerald-800">
+                          Winner: {activeDecision.verdict.recommendedOptionName}
+                        </span>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Audio Reactive Waveform Banner */}
+                  <div className="shrink-0 px-4 py-2 bg-neutral-900 text-white dark:bg-neutral-950 flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2 text-xs font-mono">
+                      <Radio
+                        className={`h-3.5 w-3.5 ${
+                          status === 'listening'
+                            ? 'text-emerald-400 animate-pulse'
+                            : status === 'speaking'
+                            ? 'text-cyan-400 animate-pulse'
+                            : 'text-neutral-400'
+                        }`}
+                      />
+                      <span className="text-neutral-200 text-[11px]">
+                        {status === 'speaking'
+                          ? 'ZENA Spoken Voice Active'
+                          : status === 'listening'
+                          ? 'Listening to your speech...'
+                          : status === 'deliberating'
+                          ? 'Synthesizing tiebreaker...'
+                          : 'Voice Arbiter Ready'}
+                      </span>
+                    </div>
+
+                    {/* Animated Waveform Bars */}
+                    <div className="flex items-center gap-1 h-3.5">
+                      {[40, 70, 100, 60, 85, 45, 90, 30].map((h, idx) => {
+                        const dynamicHeight =
+                          status === 'listening' || status === 'speaking'
+                            ? Math.max(20, Math.min(100, (audioLevel * 100 + h * 0.4) % 100))
+                            : 20;
+                        return (
+                          <span
+                            key={idx}
+                            className={`w-0.5 rounded-full transition-all duration-100 ${
+                              status === 'speaking'
+                                ? 'bg-cyan-400'
+                                : status === 'listening'
+                                ? 'bg-emerald-400'
+                                : 'bg-neutral-600'
+                            }`}
+                            style={{ height: `${dynamicHeight}%` }}
+                          />
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Notice or Error Alert if any */}
+                  {errorMessage && (
+                    <div className="shrink-0 px-4 py-2 bg-amber-50 dark:bg-amber-950/60 border-b border-amber-300 dark:border-amber-700/80 text-[11px] text-amber-950 dark:text-amber-100 flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <Info className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
+                        <span className="truncate">{errorMessage}</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setErrorMessage(null)}
+                        className="text-amber-800 dark:text-amber-300 hover:underline font-bold shrink-0 cursor-pointer"
+                      >
+                        Dismiss
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Browser Speech Dictation Notice (Fallback for mobile browsers without Web Speech) */}
+                  {!speechSupported && (
+                    <div className="shrink-0 px-4 py-2 bg-indigo-50 dark:bg-indigo-950/60 border-b border-indigo-200 dark:border-indigo-800 text-[11px] text-indigo-950 dark:text-indigo-100 flex items-center justify-between gap-2">
+                      <span>Voice dictation is unsupported in this mobile browser. You can type or launch Gemini Live.</span>
+                      {onOpenLiveModal && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsOpen(false);
+                            onOpenLiveModal();
+                          }}
+                          className="font-bold text-indigo-600 dark:text-indigo-300 underline shrink-0 cursor-pointer"
+                        >
+                          Open Live Mode
+                        </button>
+                      )}
+                    </div>
+                  )}
+
+                  {/* SCROLLABLE TRANSCRIPT BOX (Flex-1 auto scroll on mobile) */}
+                  <div
+                    id="zena-transcript-box"
+                    className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-4 space-y-3.5 text-xs text-neutral-800 dark:text-neutral-200 bg-neutral-50/50 dark:bg-neutral-900/50"
                   >
-                    <Send className="h-4 w-4" />
-                  </button>
-                </form>
-              </div>
+                    {messages.map((m) => {
+                      const isUser = m.role === 'user';
+                      return (
+                        <div
+                          key={m.id}
+                          className={`flex gap-2.5 ${isUser ? 'justify-end' : 'justify-start'}`}
+                        >
+                          {!isUser && (
+                            <div className="h-6 w-6 rounded-full bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center text-white shrink-0 mt-0.5 shadow-xs">
+                              <ParticleVoiceIcon size={14} isSpeaking={status === 'speaking'} animated={false} />
+                            </div>
+                          )}
+
+                          <div
+                            className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 shadow-2xs ${
+                              isUser
+                                ? 'bg-neutral-950 text-white dark:bg-neutral-100 dark:text-neutral-950 rounded-br-none'
+                                : 'bg-white dark:bg-neutral-800/95 border border-neutral-200/90 dark:border-neutral-700/80 text-neutral-900 dark:text-neutral-100 rounded-bl-none'
+                            }`}
+                          >
+                            {!isUser && (
+                              <div className="flex items-center justify-between gap-2 mb-1">
+                                <span className="font-bold text-[10px] text-cyan-600 dark:text-cyan-400 uppercase tracking-wider">
+                                  ZENA • Decision Arbiter
+                                </span>
+                                <span className="text-[10px] text-neutral-400 dark:text-neutral-400 font-mono">
+                                  {new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                </span>
+                              </div>
+                            )}
+
+                            <p className="leading-relaxed text-xs sm:text-[13px] whitespace-pre-wrap">
+                              {m.text}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
+
+                    {/* Interim Live Speech Transcript Bubble */}
+                    {interimTranscript && (
+                      <div className="flex justify-end gap-2">
+                        <div className="max-w-[85%] rounded-2xl rounded-br-none px-3.5 py-2 bg-neutral-200/80 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 italic text-xs animate-pulse">
+                          &ldquo;{interimTranscript}...&rdquo;
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Deliberating Status Bubble */}
+                    {status === 'deliberating' && (
+                      <div className="flex items-center gap-2 text-xs text-cyan-600 dark:text-cyan-400 italic font-mono pl-8">
+                        <span className="animate-spin h-3 w-3 border-2 border-cyan-500 border-t-transparent rounded-full" />
+                        <span>Zena is computing criteria &amp; trade-offs...</span>
+                      </div>
+                    )}
+
+                    <div ref={transcriptEndRef} />
+                  </div>
+
+                  {/* Quick Deliberation Prompts Slider */}
+                  <div className="shrink-0 px-3 py-2 bg-white dark:bg-neutral-900 border-t border-neutral-100 dark:border-neutral-800 overflow-x-auto no-scrollbar">
+                    <div className="flex items-center gap-1.5 whitespace-nowrap">
+                      {getLocalizedPrompts(currentLanguage).map((item, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => {
+                            unlockAudioContext();
+                            sendToZena(item.prompt);
+                          }}
+                          className="inline-flex items-center gap-1 rounded-full bg-neutral-100 dark:bg-neutral-800 hover:bg-cyan-50 dark:hover:bg-cyan-950/60 hover:text-cyan-600 dark:hover:text-cyan-400 border border-neutral-300 dark:border-neutral-700 px-2.5 py-1 text-[11px] font-medium text-neutral-800 dark:text-neutral-100 transition-colors cursor-pointer min-h-[30px]"
+                        >
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Transcript Actions Bar */}
+                  <div className="shrink-0 px-4 py-1.5 flex items-center justify-between text-[11px] text-neutral-600 dark:text-neutral-300 bg-neutral-50/50 dark:bg-neutral-900/50 border-t border-neutral-200/60 dark:border-neutral-800/60">
+                    <span className="font-mono text-[10px]">Concise 1–3 Sentence Protocol</span>
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={handleCopyTranscript}
+                        className="hover:text-neutral-900 dark:hover:text-white flex items-center gap-1 cursor-pointer min-h-[28px]"
+                        title={t.liveVoiceCopy || 'Copy conversation transcript'}
+                      >
+                        {copied ? <Check className="h-3 w-3 text-emerald-500" /> : <Copy className="h-3 w-3" />}
+                        <span>{copied ? 'Copied' : (t.copy || 'Copy')}</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleClearTranscript}
+                        className="hover:text-rose-600 dark:hover:text-rose-400 flex items-center gap-1 cursor-pointer min-h-[28px]"
+                        title={t.liveVoiceClear || 'Clear transcript history'}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                        <span>Clear</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Interactive Mic & Input Bar */}
+                  <div className="shrink-0 p-3 sm:p-4 bg-white dark:bg-neutral-900 border-t border-neutral-200/80 dark:border-neutral-800 flex flex-col gap-2.5">
+                    {/* Main Mic Toggle Control (Large touch target ≥ 52px for mobile) */}
+                    <div className="flex items-center gap-2">
+                      <button
+                        id="zena-mic-toggle-btn"
+                        type="button"
+                        onClick={handleToggleMic}
+                        style={{ touchAction: 'manipulation' }}
+                        className={`relative flex items-center justify-center min-h-[52px] px-4 rounded-2xl font-bold text-xs sm:text-sm transition-all duration-200 cursor-pointer shadow-md flex-1 ${
+                          isMicActive
+                            ? 'bg-rose-600 hover:bg-rose-700 text-white ring-4 ring-rose-500/30'
+                            : 'bg-gradient-to-r from-cyan-600 via-indigo-600 to-purple-600 hover:opacity-95 text-white ring-2 ring-cyan-400/40 shadow-cyan-500/20 active:scale-[0.98]'
+                        }`}
+                      >
+                        {isMicActive ? (
+                          <div className="flex items-center gap-2">
+                            <span className="relative flex h-3 w-3">
+                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
+                              <span className="relative inline-flex rounded-full h-3 w-3 bg-white" />
+                            </span>
+                            <MicOff className="h-4 w-4" />
+                            <span>Stop Mic (Listening...)</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <Mic className="h-4 w-4" />
+                            <span>Start Speaking to ZENA</span>
+                          </div>
+                        )}
+                      </button>
+
+                      {/* Quick button to open Gemini Live if user wants full-duplex conversational voice */}
+                      {onOpenLiveModal && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            stopListening();
+                            setIsOpen(false);
+                            onOpenLiveModal();
+                          }}
+                          className="min-h-[52px] px-3 rounded-2xl border border-cyan-500/30 dark:border-cyan-500/40 bg-cyan-50/50 dark:bg-cyan-950/40 text-cyan-700 dark:text-cyan-300 font-semibold text-xs flex flex-col items-center justify-center gap-0.5 hover:bg-cyan-100 dark:hover:bg-cyan-900/50 transition-colors cursor-pointer"
+                          title="Open Gemini 3.1 Live Audio Modal"
+                        >
+                          <Radio className="h-3.5 w-3.5" />
+                          <span className="text-[10px] leading-tight">Live Studio</span>
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Text Fallback Input Bar */}
+                    <form onSubmit={handleTextSubmit} className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={textInput}
+                        onChange={(e) => setTextInput(e.target.value)}
+                        placeholder="Or type a question for Zena..."
+                        className="flex-1 min-h-[42px] px-3.5 py-1.5 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/90 text-xs text-neutral-900 dark:text-white placeholder:text-neutral-500 dark:placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                      />
+                      <button
+                        type="submit"
+                        disabled={!textInput.trim()}
+                        className="min-h-[42px] min-w-[42px] flex items-center justify-center rounded-xl bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors cursor-pointer"
+                        title="Send message to Zena"
+                        aria-label="Send"
+                      >
+                        <Send className="h-4 w-4" />
+                      </button>
+                    </form>
+                  </div>
+                </>
+              )}
             </>
           )}
         </div>

@@ -390,13 +390,14 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Quick PWA Install on Mobile Header */}
           <PWAInstallButton variant="compact" />
 
-          {/* Quick Voice Access on Mobile */}
+          {/* Quick Voice Access on Mobile - One Call Away Direct to Live */}
           <button
             id="mobile-nav-voice-btn"
             type="button"
-            onClick={onOpenZenaWidget || onOpenLiveVoice}
+            onClick={onOpenLiveVoice}
             className="flex items-center gap-1.5 rounded-xl border border-cyan-500/40 dark:border-cyan-500/40 bg-gradient-to-r from-cyan-500/10 to-indigo-500/10 dark:from-cyan-950/60 dark:to-indigo-950/50 px-2.5 py-1.5 text-xs font-semibold text-cyan-700 dark:text-cyan-300 active:scale-95 transition-all shadow-2xs min-h-[44px] cursor-pointer"
-            aria-label="Open Zena Voice Deliberation"
+            title="Call Zena • Direct Live Voice Conversation"
+            aria-label="Call Zena Live Voice Conversation"
           >
             <div className="relative flex items-center justify-center">
               <span className={`animate-ping absolute inline-flex h-2.5 w-2.5 rounded-full ${wakeWordListening ? 'bg-emerald-400' : 'bg-cyan-400'} opacity-75`}></span>
@@ -577,16 +578,12 @@ export const Navbar: React.FC<NavbarProps> = ({
               </div>
             </button>
 
-            {/* Deliberate with Zena Voice */}
+            {/* Deliberate with Zena Voice - Direct Live Conversation */}
             <button
               type="button"
               onClick={() => {
                 setMobileMenuOpen(false);
-                if (onOpenZenaWidget) {
-                  onOpenZenaWidget();
-                } else {
-                  onOpenLiveVoice();
-                }
+                onOpenLiveVoice();
               }}
               className="flex items-center gap-2.5 p-3 rounded-xl border border-cyan-500/30 dark:border-cyan-500/40 bg-cyan-50/50 dark:bg-cyan-950/30 hover:bg-cyan-100/60 text-left transition-colors min-h-[48px] cursor-pointer"
             >
@@ -595,7 +592,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               </div>
               <div className="min-w-0">
                 <span className="text-xs font-semibold text-cyan-800 dark:text-cyan-200 block truncate">{t.zynoVoiceNav || 'Zena Voice'}</span>
-                <span className="text-[10px] text-cyan-600 dark:text-cyan-400 truncate block">Spoken AI</span>
+                <span className="text-[10px] text-cyan-600 dark:text-cyan-400 truncate block">Direct Live Conversation</span>
               </div>
             </button>
 

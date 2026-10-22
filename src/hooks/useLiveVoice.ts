@@ -13,6 +13,7 @@ export type LiveVoiceStatus = 'idle' | 'connecting' | 'connected' | 'error' | 'd
 export interface UseLiveVoiceOptions {
   decisionContext?: string;
   defaultVoice?: string;
+  language?: string;
   onTranscriptUpdate?: (transcript: LiveVoiceMessage[]) => void;
 }
 
@@ -36,6 +37,7 @@ export function useLiveVoice(options: UseLiveVoiceOptions = {}) {
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [isSpeakerMuted, setIsSpeakerMuted] = useState<boolean>(false);
   const [voice, setVoice] = useState<string>(options.defaultVoice || 'Zena');
+  const [language, setLanguage] = useState<string>(options.language || 'en');
   const [messages, setMessages] = useState<LiveVoiceMessage[]>([]);
   const [userVolume, setUserVolume] = useState<number>(0);
   const [modelVolume, setModelVolume] = useState<number>(0);
@@ -106,7 +108,7 @@ export function useLiveVoice(options: UseLiveVoiceOptions = {}) {
     loop();
   }, []);
 
-  const startSession = useCallback(async (customContext?: string, customVoice?: string) => {
+  const startSession = useCallback(async (customContext?: string, customVoice?: string, customLanguage?: string) => {
     cleanup();
     setStatus('connecting');
     setErrorMessage(null);
@@ -116,6 +118,9 @@ export function useLiveVoice(options: UseLiveVoiceOptions = {}) {
 
     const selectedVoice = customVoice || voice;
     if (customVoice) setVoice(customVoice);
+
+    const selectedLanguage = customLanguage || language || options.language || 'en';
+    if (customLanguage) setLanguage(customLanguage);
 
     try {
       // 1. Initialize Player
@@ -139,11 +144,12 @@ export function useLiveVoice(options: UseLiveVoiceOptions = {}) {
           }
         }, 15000);
 
-        // Send init message with context & voice
+        // Send init message with context, voice & language
         const contextPayload = customContext !== undefined ? customContext : (options.decisionContext || '');
         ws.send(JSON.stringify({
           type: 'init',
           voice: selectedVoice,
+          language: selectedLanguage,
           decisionContext: contextPayload,
         }));
 
@@ -179,7 +185,7 @@ export function useLiveVoice(options: UseLiveVoiceOptions = {}) {
               {
                 id: `sys-${Date.now()}`,
                 role: 'system',
-                text: `Connected to Gemini 3.1 Live (${data.voice || selectedVoice} voice). Speak or type your thoughts.`,
+                text: `Connected to Gemini 3.1 Live (${data.voice || selectedVoice} voice • ${data.languageName || selectedLanguage}). Speak or type your thoughts.`,
                 timestamp: Date.now(),
               },
             ]);
@@ -423,6 +429,8 @@ export function useLiveVoice(options: UseLiveVoiceOptions = {}) {
     isSpeakerMuted,
     voice,
     setVoice,
+    language,
+    setLanguage,
     messages,
     userVolume,
     modelVolume,

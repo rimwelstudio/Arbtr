@@ -9,7 +9,9 @@ import {
   Monitor, 
   ExternalLink,
   Sparkles,
-  Info
+  Info,
+  Copy,
+  Check
 } from 'lucide-react';
 import { usePWAInstall } from '../hooks/usePWAInstall';
 
@@ -33,12 +35,24 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({
     isMacOS, 
     browserName, 
     install, 
-    openStandaloneWindow 
+    openStandaloneWindow,
+    copyAppUrl 
   } = usePWAInstall();
 
   const [showModal, setShowModal] = useState<boolean>(false);
   const [installing, setInstalling] = useState<boolean>(false);
   const [installedSuccess, setInstalledSuccess] = useState<boolean>(false);
+  const [copiedLink, setCopiedLink] = useState<boolean>(false);
+
+  const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
+
+  const handleCopy = async () => {
+    const ok = await copyAppUrl();
+    if (ok) {
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2500);
+    }
+  };
 
   // If already running inside standalone PWA mode, suppress install button
   if (isInstalled) {
@@ -201,16 +215,36 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({
                       Embedded Preview Notice
                     </h4>
                     <p className="mt-1 leading-relaxed text-indigo-900/90 dark:text-indigo-200/90">
-                      Web browsers disable native PWA install prompts inside preview iframes. Open Arbitr in a dedicated browser tab to trigger the native 1-click install button.
+                      Web browsers disable native PWA install prompts inside preview iframes. Open Arbitr in a dedicated browser tab or copy the URL to trigger the native 1-click install button.
                     </p>
-                    <button
-                      type="button"
-                      onClick={openStandaloneWindow}
-                      className="mt-3 inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer"
-                    >
-                      <ExternalLink className="h-3.5 w-3.5" />
-                      <span>Open in Dedicated Window to Install</span>
-                    </button>
+                    <div className="mt-3 flex flex-wrap items-center gap-2">
+                      <a
+                        href={currentUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer min-h-[38px]"
+                      >
+                        <ExternalLink className="h-3.5 w-3.5" />
+                        <span>Open in Dedicated Window</span>
+                      </a>
+                      <button
+                        type="button"
+                        onClick={handleCopy}
+                        className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-indigo-300 dark:border-indigo-700 bg-white dark:bg-neutral-800 hover:bg-indigo-50 dark:hover:bg-neutral-700 text-indigo-900 dark:text-indigo-200 text-xs font-semibold shadow-2xs transition-colors cursor-pointer min-h-[38px]"
+                      >
+                        {copiedLink ? (
+                          <>
+                            <Check className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                            <span>Link Copied!</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
+                            <span>Copy App Link</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -374,14 +408,34 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({
               )}
 
               {isIframe && (
-                <button
-                  type="button"
-                  onClick={openStandaloneWindow}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 text-xs font-semibold shadow-xs transition-colors cursor-pointer min-h-[44px]"
-                >
-                  <ExternalLink className="h-4 w-4" />
-                  <span>Open Standalone Window</span>
-                </button>
+                <>
+                  <a
+                    href={currentUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 text-xs font-semibold shadow-xs transition-colors cursor-pointer min-h-[44px]"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    <span>Open Standalone Window</span>
+                  </a>
+                  <button
+                    type="button"
+                    onClick={handleCopy}
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-700 text-neutral-800 dark:text-neutral-200 px-4 py-2.5 text-xs font-semibold transition-colors cursor-pointer min-h-[44px]"
+                  >
+                    {copiedLink ? (
+                      <>
+                        <Check className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                        <span>Link Copied</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="h-4 w-4 text-neutral-500 dark:text-neutral-400" />
+                        <span>Copy Link</span>
+                      </>
+                    )}
+                  </button>
+                </>
               )}
 
               <button
