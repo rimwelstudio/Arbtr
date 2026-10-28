@@ -907,7 +907,7 @@ export default function App() {
         }}
         errorStatus={wakeWordError}
         currentLanguage={currentLanguage}
-        isZenaOpen={showLiveVoiceModal}
+        isZenaOpen={showLiveVoiceModal || isZenaWidgetOpen}
       />
 
       {/* Interactive Responsive Floating Voice Persona Widget: ZENA */}

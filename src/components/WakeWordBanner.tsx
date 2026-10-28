@@ -52,12 +52,13 @@ export const WakeWordBanner: React.FC<WakeWordBannerProps> = ({
       {!isZenaOpen && (
         <div 
           id="wake-word-status-bar"
-          className="fixed bottom-20 right-4 sm:bottom-6 sm:right-24 z-20 flex items-center gap-2 pointer-events-auto"
+          className="fixed bottom-20 right-4 sm:bottom-6 sm:right-24 z-20 flex items-center gap-2 pointer-events-auto max-w-[calc(100vw-1.5rem)]"
           style={{
             paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+            paddingRight: 'env(safe-area-inset-right, 0px)',
           }}
         >
-        <div className="flex items-center gap-1.5 sm:gap-2 rounded-full border border-neutral-200/90 dark:border-neutral-800 bg-white/95 dark:bg-neutral-900/95 px-3 py-1.5 shadow-lg shadow-neutral-900/5 backdrop-blur-md text-xs text-neutral-700 dark:text-neutral-300 transition-all">
+        <div className="flex items-center gap-1.5 sm:gap-2 rounded-full border border-neutral-200/90 dark:border-neutral-800 bg-white/95 dark:bg-neutral-900/95 px-2.5 sm:px-3 py-1.5 shadow-lg shadow-neutral-900/5 backdrop-blur-md text-xs text-neutral-700 dark:text-neutral-300 transition-all">
           
           {/* Permission Needed / Blocked State */}
           {needsPermission ? (
@@ -71,7 +72,20 @@ export const WakeWordBanner: React.FC<WakeWordBannerProps> = ({
             >
               <MicOff className="h-3.5 w-3.5 text-amber-500 animate-pulse" />
               <span className="font-semibold text-[11px]">
-                {requesting ? (t.wakeBannerRequesting || 'Requesting mic...') : (t.wakeBannerEnableMic || 'Enable Mic for Wake Word')}
+                {requesting ? (t.wakeBannerRequesting || 'Requesting...') : (t.wakeBannerEnableMic || 'Enable Mic')}
+              </span>
+            </button>
+          ) : !isSupported ? (
+            /* Unsupported Browser Fallback */
+            <button
+              type="button"
+              onClick={onCallZena || (() => onSimulate('Hey Zena'))}
+              className="flex items-center gap-1.5 font-medium hover:text-cyan-600 dark:hover:text-cyan-400 cursor-pointer"
+              title="Tap to launch direct live voice deliberation with Zena"
+            >
+              <Sparkles className="h-3.5 w-3.5 text-cyan-500" />
+              <span className="font-mono font-semibold text-[11px] text-neutral-800 dark:text-neutral-200">
+                Voice: Tap Call
               </span>
             </button>
           ) : (
@@ -85,7 +99,7 @@ export const WakeWordBanner: React.FC<WakeWordBannerProps> = ({
                 isEnabled && isListening
                   ? 'Wake word detection ACTIVE: Say "Hey Zena" anytime to start voice deliberation'
                   : isEnabled
-                  ? 'Wake word starting... (or click Test Wake)'
+                  ? 'Wake word starting... (or click Call Zena)'
                   : 'Wake word paused. Click to turn on.'
               }
             >
@@ -96,7 +110,7 @@ export const WakeWordBanner: React.FC<WakeWordBannerProps> = ({
                 </span>
               ) : isEnabled ? (
                 <span className="relative flex h-2.5 w-2.5">
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-400"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-400 animate-pulse"></span>
                 </span>
               ) : (
                 <span className="inline-flex rounded-full h-2 w-2 bg-neutral-400 dark:bg-neutral-600"></span>
@@ -141,7 +155,7 @@ export const WakeWordBanner: React.FC<WakeWordBannerProps> = ({
 
         {/* Info popover */}
         {showInfo && (
-          <div className="absolute bottom-12 right-0 w-84 sm:w-96 rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4 shadow-xl text-xs z-50 animate-in fade-in zoom-in-95 duration-150">
+          <div className="absolute bottom-12 right-0 w-[min(22rem,calc(100vw-2rem))] rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4 shadow-xl text-xs z-50 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between mb-2 pb-2 border-b border-neutral-100 dark:border-neutral-800">
               <div className="flex items-center gap-1.5 font-semibold text-neutral-900 dark:text-neutral-100">
                 <Sparkles className="h-3.5 w-3.5 text-cyan-500" />

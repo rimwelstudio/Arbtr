@@ -13,10 +13,46 @@ export interface UseWakeWordOptions {
   currentLanguage?: string;
 }
 
+// BCP 47 locale mapping for reliable mobile SpeechRecognition engines
+const BCP47_LANGUAGE_MAP: Record<string, string> = {
+  en: 'en-US',
+  es: 'es-ES',
+  fr: 'fr-FR',
+  de: 'de-DE',
+  zh: 'zh-CN',
+  ja: 'ja-JP',
+  ar: 'ar-SA',
+  tl: 'fil-PH',
+  ko: 'ko-KR',
+  pt: 'pt-BR',
+  it: 'it-IT',
+  nl: 'nl-NL',
+  ru: 'ru-RU',
+  hi: 'hi-IN',
+  tr: 'tr-TR',
+  pl: 'pl-PL',
+  vi: 'vi-VN',
+  id: 'id-ID',
+  sv: 'sv-SE',
+  da: 'da-DK',
+};
+
+function getBcp47Locale(lang?: string): string {
+  if (!lang) return 'en-US';
+  const clean = lang.toLowerCase().trim();
+  if (BCP47_LANGUAGE_MAP[clean]) {
+    return BCP47_LANGUAGE_MAP[clean];
+  }
+  if (clean.includes('-')) {
+    return lang;
+  }
+  return 'en-US';
+}
+
 /**
  * Phonetic normalizer and pattern matcher for Zena wake word ("Hey Zena").
  * Handles punctuation removal, homophones, Google STT misrecognitions,
- * and multilingual wake terms.
+ * mobile on-device speech model variants, and multilingual wake terms.
  */
 export function checkWakeMatch(rawTranscript: string): { matched: boolean; detected: string } {
   if (!rawTranscript) return { matched: false, detected: '' };
@@ -24,7 +60,6 @@ export function checkWakeMatch(rawTranscript: string): { matched: boolean; detec
   if (!text) return { matched: false, detected: '' };
 
   // 1. Clean punctuation, symbols and excess spacing
-  // (e.g. "Hey Zena!" -> "hey zena")
   const clean = text
     .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?"'\\|<>+]/g, ' ')
     .replace(/\s+/g, ' ')
@@ -32,22 +67,23 @@ export function checkWakeMatch(rawTranscript: string): { matched: boolean; detec
 
   // 2. Normalize common phonetic misrecognitions of "Zena" and "Hey Zena" in speech-to-text
   const normalized = clean
-    .replace(/\b(hay|he|aye|ey|hi|k|okay|ok)\s+(zena|xena|zeena|zina|zayna|zeno|zenna)\b/gi, 'hey zena')
-    .replace(/\b(xena|zeena|zina|zayna|zeno|zenna|cyna|seena|sena)\b/gi, 'zena')
+    .replace(/\b(hay|he|aye|ey|hi|k|okay|ok|oye|hola|dis|salut|hoy)\s+(zena|xena|zeena|zina|zayna|zeno|zenna|gina|gena|jena|tina|zen|santa)\b/gi, 'hey zena')
+    .replace(/\b(call|talk\s+to|speak\s+to|open|start|launch|ask|connect\s+to|wake|wake\s+up)\s+(zena|xena|zeena|zina|zayna|zeno|zenna|gina|gena|jena)\b/gi, 'hey zena')
+    .replace(/\b(xena|zeena|zina|zayna|zeno|zenna|cyna|seena|sena|gena|jena|gina)\b/gi, 'zena')
     .replace(/\b(zy|zi|zye|zai|sai|ze)\s+(know|no|nah|na|now)\b/gi, 'zena')
     .replace(/\b(wake\s+opt|wait\s+up|way\s+cup|wake\s+app)\b/gi, 'wake up');
 
-  // Direct matching patterns prioritizing "Hey Zena"
+  // Direct matching patterns prioritizing "Hey Zena" and "Call Zena"
   const patterns = [
-    // Primary trigger: "Hey Zena", "Hi Zena", "OK Zena", "Hello Zena"
-    /\b(?:hey|hi|hello|ok|okay)\s+zena\b/i,
-    // "Zena" followed by action or phrase
-    /\bzena\s+(?:wake\s*up|activate|listen|start|help|deliberate|answer|despierta|acorda|reveille|wach\s*auf|svegliati)\b/i,
-    /\b(?:wake\s*up|despierta|acorda|reveille|wach\s*auf|svegliati)\s+zena\b/i,
-    // "Zena" alone or clearly addressed
+    // Primary triggers
+    /\b(?:hey|hi|hello|ok|okay|call|talk\s+to|speak\s+to|open|ask|oye|hola|dis|salut)\s+zena\b/i,
+    // "Zena" followed or preceded by action phrase
+    /\bzena\s+(?:wake\s*up|activate|listen|start|help|deliberate|answer|despierta|acorda|reveille|wach\s*auf|svegliati|gising)\b/i,
+    /\b(?:wake\s*up|despierta|acorda|reveille|wach\s*auf|svegliati|gising)\s+zena\b/i,
+    // "Zena" alone or addressed
     /\bzena\b/i,
     // Multilingual wake expressions
-    /\b(?:despierta|acorda|reveille-toi|wach\s*auf|svegliati)\b/i,
+    /\b(?:despierta|acorda|reveille-toi|wach\s*auf|svegliati|gising)\s*(?:zena)?\b/i,
   ];
 
   for (const pattern of patterns) {
@@ -59,16 +95,32 @@ export function checkWakeMatch(rawTranscript: string): { matched: boolean; detec
   return { matched: false, detected: '' };
 }
 
+let sharedAudioContext: AudioContext | null = null;
+
+function getSafeAudioContext(): AudioContext | null {
+  try {
+    const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioCtx) return null;
+    if (!sharedAudioContext || sharedAudioContext.state === 'closed') {
+      sharedAudioContext = new AudioCtx();
+    }
+    if (sharedAudioContext.state === 'suspended') {
+      sharedAudioContext.resume().catch(() => {});
+    }
+    return sharedAudioContext;
+  } catch {
+    return null;
+  }
+}
+
 /**
- * Synthesizes an instant futuristic wake-up chime using Web Audio API
+ * Synthesizes an instant futuristic wake-up chime using Web Audio API safely across devices
  */
 export async function playWakeChime() {
   try {
-    const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-    if (!AudioCtx) return;
-    const ctx = new AudioCtx();
+    const ctx = getSafeAudioContext();
+    if (!ctx) return;
 
-    // Ensure audio context is resumed (browser autoplay policy)
     if (ctx.state === 'suspended') {
       try {
         await ctx.resume();
@@ -100,10 +152,6 @@ export async function playWakeChime() {
       osc.start(now + idx * 0.08);
       osc.stop(now + idx * 0.08 + 0.5);
     });
-
-    setTimeout(() => {
-      ctx.close().catch(() => {});
-    }, 1500);
   } catch (err) {
     console.debug('[WakeWord] Audio chime playback error:', err);
   }
@@ -129,9 +177,19 @@ export function useWakeWord({
   const isMountedRef = useRef<boolean>(true);
   const isHandlingWakeRef = useRef<boolean>(false);
   const isStartingRef = useRef<boolean>(false);
+  const hasUserInteractedRef = useRef<boolean>(false);
+  const consecutiveErrorsRef = useRef<number>(0);
 
   const onDetectedRef = useRef(onWakeWordDetected);
   onDetectedRef.current = onWakeWordDetected;
+
+  // Detect mobile / PWA environment
+  const isMobile = typeof window !== 'undefined' && (
+    /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+    (window.matchMedia && window.matchMedia('(max-width: 768px)').matches) ||
+    (navigator as any).standalone === true ||
+    (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
+  );
 
   // Check Web Speech API support on mount and check mic permission if supported
   useEffect(() => {
@@ -140,28 +198,37 @@ export function useWakeWord({
     const hasSupport = Boolean(win.SpeechRecognition || win.webkitSpeechRecognition);
     setIsSupported(hasSupport);
 
-    if (navigator.permissions && navigator.permissions.query) {
-      navigator.permissions
-        .query({ name: 'microphone' as PermissionName })
-        .then((permissionStatus) => {
-          if (!isMountedRef.current) return;
-          if (permissionStatus.state === 'granted') {
-            setNeedsPermission(false);
-          } else if (permissionStatus.state === 'denied') {
-            setNeedsPermission(true);
-            setErrorStatus('Microphone permission blocked. Click to enable.');
-          }
-          permissionStatus.onchange = () => {
+    // Safari throws on navigator.permissions.query({ name: 'microphone' }), so wrap in try-catch
+    try {
+      if (navigator.permissions && navigator.permissions.query) {
+        navigator.permissions
+          .query({ name: 'microphone' as PermissionName })
+          .then((permissionStatus) => {
             if (!isMountedRef.current) return;
             if (permissionStatus.state === 'granted') {
               setNeedsPermission(false);
-              setErrorStatus(null);
+              hasUserInteractedRef.current = true;
             } else if (permissionStatus.state === 'denied') {
               setNeedsPermission(true);
+              setErrorStatus('Microphone permission blocked. Click to enable.');
             }
-          };
-        })
-        .catch(() => {});
+            permissionStatus.onchange = () => {
+              if (!isMountedRef.current) return;
+              if (permissionStatus.state === 'granted') {
+                setNeedsPermission(false);
+                setErrorStatus(null);
+                hasUserInteractedRef.current = true;
+              } else if (permissionStatus.state === 'denied') {
+                setNeedsPermission(true);
+              }
+            };
+          })
+          .catch(() => {
+            // Permission query unsupported on iOS Safari
+          });
+      }
+    } catch {
+      // Ignore unsupported permissions query
     }
 
     return () => {
@@ -269,11 +336,12 @@ export function useWakeWord({
       recognition.continuous = true;
       recognition.interimResults = true;
       recognition.maxAlternatives = 3;
-      // Use language preference or fallback to en-US for optimal wake phrase detection
-      recognition.lang = currentLanguage && currentLanguage !== 'en' ? currentLanguage : 'en-US';
+      // Use language preference mapped to full BCP 47 locale for mobile engines
+      recognition.lang = getBcp47Locale(currentLanguage);
 
       recognition.onstart = () => {
         isStartingRef.current = false;
+        consecutiveErrorsRef.current = 0;
         if (!isMountedRef.current) return;
         setIsListening(true);
         setErrorStatus(null);
@@ -314,9 +382,7 @@ export function useWakeWord({
         const error = event.error;
 
         // "no-speech" is NOT a failure; it is the browser's standard silence timeout
-        // event during passive background listening. Do not log as an error.
         if (error === 'no-speech') {
-          // Chrome silence timeout - normal cycle, onend will smoothly restart recognition
           return;
         }
 
@@ -327,6 +393,11 @@ export function useWakeWord({
 
         if (error === 'not-allowed' || error === 'service-not-allowed') {
           setIsListening(false);
+          // If on mobile and user has not interacted yet, don't show red error banner
+          if (isMobile && !hasUserInteractedRef.current) {
+            setNeedsPermission(true);
+            return;
+          }
           setNeedsPermission(true);
           setErrorStatus('Microphone permission required for wake word. Click to enable.');
           return;
@@ -340,16 +411,17 @@ export function useWakeWord({
 
         if (error === 'network') {
           // Network hiccup with speech service: auto-restart with backoff
+          consecutiveErrorsRef.current += 1;
+          const delay = Math.min(4000, 1000 * consecutiveErrorsRef.current);
           if (restartTimerRef.current) clearTimeout(restartTimerRef.current);
           restartTimerRef.current = setTimeout(() => {
             if (isMountedRef.current && isEnabled && !disabled && !isManuallyStoppedRef.current) {
               startRecognition(false);
             }
-          }, 1500);
+          }, delay);
           return;
         }
 
-        // Log genuine unexpected errors only
         console.warn('[WakeWord] Speech recognition error:', error);
       };
 
@@ -361,11 +433,13 @@ export function useWakeWord({
         // Auto-restart with fresh instance if still active and not manually stopped
         if (isMountedRef.current && isEnabled && !disabled && !isManuallyStoppedRef.current && !isHandlingWakeRef.current) {
           if (restartTimerRef.current) clearTimeout(restartTimerRef.current);
+          // Mobile hardware needs longer to release audio resources (350ms vs 120ms on desktop)
+          const delay = isMobile ? 350 : 120;
           restartTimerRef.current = setTimeout(() => {
             if (isMountedRef.current && isEnabled && !disabled && !isManuallyStoppedRef.current && !isHandlingWakeRef.current) {
               startRecognition(true /* isCycle */);
             }
-          }, 100);
+          }, delay);
         } else {
           setIsListening(false);
         }
@@ -378,13 +452,13 @@ export function useWakeWord({
         isStartingRef.current = false;
         recognitionRef.current = null;
         if (startErr?.name === 'InvalidStateError') {
-          // Recognition already started or audio device busy, retry after small backoff
+          // Audio hardware busy or already started, retry after backoff
           if (restartTimerRef.current) clearTimeout(restartTimerRef.current);
           restartTimerRef.current = setTimeout(() => {
             if (isMountedRef.current && isEnabled && !disabled && !isManuallyStoppedRef.current) {
               startRecognition(true);
             }
-          }, 250);
+          }, isMobile ? 500 : 250);
         } else {
           console.debug('[WakeWord] Recognition start error:', startErr);
         }
@@ -400,33 +474,95 @@ export function useWakeWord({
         console.debug('[WakeWord] Failed to construct recognition:', err);
       }
     }
-  }, [currentLanguage, disabled, isEnabled, stopRecognition, triggerWake]);
+  }, [currentLanguage, disabled, isEnabled, isMobile, stopRecognition, triggerWake]);
 
-  // Request explicit microphone access via user gesture
+  // Request explicit microphone access via user gesture (Mobile & Desktop)
   const requestMicPermission = useCallback(async () => {
     try {
+      hasUserInteractedRef.current = true;
       setErrorStatus(null);
+      getSafeAudioContext();
+
       if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        // Release tracks immediately so mic is free for Web Speech API
-        stream.getTracks().forEach((track) => track.stop());
+        // Delay track termination slightly so mobile hardware stays initialized
+        setTimeout(() => {
+          stream.getTracks().forEach((track) => track.stop());
+        }, 1200);
       }
+
       setNeedsPermission(false);
       setIsEnabled(true);
       isManuallyStoppedRef.current = false;
-      // Restart speech recognition cleanly
-      setTimeout(() => {
-        startRecognition();
-      }, 150);
+
+      // Start recognition immediately in the user gesture tick
+      startRecognition(false);
       return true;
     } catch (err: any) {
       console.warn('[WakeWord] Microphone permission request failed:', err);
-      setErrorStatus('Microphone permission denied. Please allow microphone access in your browser.');
+      setErrorStatus('Microphone permission denied. Please allow microphone access in your browser settings.');
       setNeedsPermission(true);
       setIsListening(false);
       return false;
     }
   }, [startRecognition]);
+
+  // Mobile/PWA Gesture Unlock:
+  // Many mobile browsers (iOS Safari, mobile Chrome, PWA mode) block background microphone
+  // capture until the user performs at least one touch/click in the app.
+  useEffect(() => {
+    const handleFirstGesture = () => {
+      hasUserInteractedRef.current = true;
+      getSafeAudioContext();
+      if (isEnabled && !isListening && !disabled && !isManuallyStoppedRef.current && isMountedRef.current) {
+        startRecognition(false);
+      }
+    };
+
+    window.addEventListener('touchstart', handleFirstGesture, { once: true, passive: true });
+    window.addEventListener('click', handleFirstGesture, { once: true, passive: true });
+    window.addEventListener('pointerdown', handleFirstGesture, { once: true, passive: true });
+
+    return () => {
+      window.removeEventListener('touchstart', handleFirstGesture);
+      window.removeEventListener('click', handleFirstGesture);
+      window.removeEventListener('pointerdown', handleFirstGesture);
+    };
+  }, [isEnabled, isListening, disabled, startRecognition]);
+
+  // Mobile App Lifecycle & Visibility Management (Phone sleep/lock, tab switching, PWA resume)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        if (isEnabled && !disabled && !isManuallyStoppedRef.current && isMountedRef.current) {
+          // Restart after settling delay when user unlocks phone or returns to app
+          if (restartTimerRef.current) clearTimeout(restartTimerRef.current);
+          restartTimerRef.current = setTimeout(() => {
+            if (isMountedRef.current && isEnabled && !disabled && !isManuallyStoppedRef.current) {
+              startRecognition(false);
+            }
+          }, 350);
+        }
+      } else {
+        // Pause silently when screen turns off or app is backgrounded
+        stopRecognition(false);
+      }
+    };
+
+    const handleFocus = () => {
+      if (isEnabled && !isListening && !disabled && !isManuallyStoppedRef.current && isMountedRef.current) {
+        startRecognition(false);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [isEnabled, isListening, disabled, startRecognition, stopRecognition]);
 
   // Main lifecycle controller
   useEffect(() => {
@@ -438,18 +574,21 @@ export function useWakeWord({
 
     isManuallyStoppedRef.current = false;
 
-    // Slight delay to allow any previous audio hardware teardown
+    // Slight delay to allow audio hardware initialization
     const timer = setTimeout(() => {
       startRecognition();
-    }, 350);
+    }, isMobile ? 500 : 350);
 
     return () => {
       clearTimeout(timer);
       stopRecognition();
     };
-  }, [isSupported, disabled, isEnabled, startRecognition, stopRecognition]);
+  }, [isSupported, disabled, isEnabled, isMobile, startRecognition, stopRecognition]);
 
   const toggleWakeWord = useCallback(() => {
+    hasUserInteractedRef.current = true;
+    getSafeAudioContext();
+
     setIsEnabled((prev) => {
       const next = !prev;
       if (!next) {
@@ -457,14 +596,16 @@ export function useWakeWord({
         stopRecognition();
       } else {
         isManuallyStoppedRef.current = false;
-        // If permission is needed, prompt
+        // If permission is needed, prompt immediately in user gesture
         if (needsPermission) {
           requestMicPermission();
+        } else {
+          startRecognition(false);
         }
       }
       return next;
     });
-  }, [needsPermission, requestMicPermission, stopRecognition]);
+  }, [needsPermission, requestMicPermission, startRecognition, stopRecognition]);
 
   return {
     isEnabled,

@@ -1,6 +1,6 @@
 {
   "name": "Arbitr",
-  "description": "Stop second-guessing your choices. Arbtr (Arbitr) is an objective AI decision engine with live voice assistant ZENA that evaluates weighted pros, cons, and trade-offs to deliver clear verdicts.",
+  "description": "Stop second-guessing your choices. Arbitr is an objective AI decision engine with live voice assistant ZENA that evaluates weighted pros, cons, and trade-offs to deliver clear verdicts.",
   "requestFramePermissions": [
     "microphone"
   ],

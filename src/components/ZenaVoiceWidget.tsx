@@ -93,7 +93,50 @@ const getLocalizedPrompts = (lang: string) => {
       { label: '🧠 Suriin ang Bias', prompt: 'Nahuhulog ba ako sa loss aversion o status quo bias?' },
     ];
   }
+  if (lang === 'zh') {
+    return [
+      { label: '⚖️ 打破僵局', prompt: '在我的选项中，哪一个客观上胜出？关键的决胜因素是什么？' },
+      { label: '📊 权衡利弊', prompt: '面对潜在风险，哪个选项具有最稳健的优势？' },
+      { label: '🛡️ 发现盲点', prompt: '我现在忽略了什么关键风险或应对措施？' },
+      { label: '⏳ 10-10-10 遗憾测试', prompt: '将 10-10-10 遗憾最小化测试应用于我的困境：10 分钟、10 个月和 10 年。' },
+      { label: '🧠 认知偏差检查', prompt: '我是否陷入了损失厌恶或现状偏见？' },
+    ];
+  }
+  if (lang === 'ja') {
+    return [
+      { label: '⚖️ 決着をつける', prompt: '選択肢の中で客観的に優れているのはどれで、決定的な要因は何ですか？' },
+      { label: '📊 メリットとデメリット', prompt: '隠れたリスクに対して最も回復力のあるメリットを持つ選択肢はどれですか？' },
+      { label: '🛡️ 盲点を見抜く', prompt: '私が見落としている重大なリスクや軽減策は何ですか？' },
+      { label: '⏳ 10-10-10 後悔テスト', prompt: '10分、10か月、10年後の後悔を最小限にする10-10-10テストを適用してください。' },
+      { label: '🧠 認知バイアス確認', prompt: '現状維持バイアスや損失回避に囚われていませんか？' },
+    ];
+  }
+  if (lang === 'ar') {
+    return [
+      { label: '⚖️ كسر التعادل', prompt: 'بين خياراتي، ما الخيار الأفضل موضوعياً وما العامل الحاسم؟' },
+      { label: '📊 موازنة الإيجابيات والسلبيات', prompt: 'أي خيار يتمتع بأكبر ميزة مقابل المخاطر الخفية؟' },
+      { label: '🛡️ كشف النقاط العمياء', prompt: 'ما النقطة العمياء أو الإجراء الحاسم الذي أتجاهله؟' },
+      { label: '⏳ اختبار الندم 10-10-10', prompt: 'طبّق اختبار الندم 10-10-10 على معضلتي: 10 دقائق، 10 أشهر، و10 سنوات.' },
+      { label: '🧠 فحص الانحياز المعرفي', prompt: 'هل أقع ضحية لتجنب الخسارة أو انحياز الوضع الراهن؟' },
+    ];
+  }
   return ARBITR_DELIBERATION_PROMPTS;
+};
+
+const BCP47_LANGUAGE_MAP: Record<string, string> = {
+  en: 'en-US',
+  es: 'es-ES',
+  fr: 'fr-FR',
+  de: 'de-DE',
+  zh: 'zh-CN',
+  ja: 'ja-JP',
+  ar: 'ar-SA',
+  tl: 'fil-PH',
+};
+
+const getBcp47Locale = (lang?: string): string => {
+  if (!lang) return 'en-US';
+  return BCP47_LANGUAGE_MAP[lang.toLowerCase().trim()] || 'en-US';
 };
 
 export const ZenaVoiceWidget: React.FC<ZenaVoiceWidgetProps> = ({
@@ -473,7 +516,7 @@ export const ZenaVoiceWidget: React.FC<ZenaVoiceWidgetProps> = ({
       const recognition = new SpeechRecognitionClass();
       recognition.continuous = false; // Mobile browsers operate best in single-shot mode
       recognition.interimResults = true;
-      recognition.lang = currentLanguage === 'en' ? 'en-US' : currentLanguage;
+      recognition.lang = getBcp47Locale(currentLanguage);
       recognition.maxAlternatives = 1;
 
       recognition.onstart = () => {
