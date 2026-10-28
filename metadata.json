@@ -1,6 +1,6 @@
 {
   "name": "Arbitr",
-  "description": "Stop overthinking. Start deciding. Arbitr (arbitrapp.com / @arbitrapp) is an AI-powered decision analysis tool providing structured pros and cons, multi-option comparison tables, SWOT analyses, and tiebreaker verdicts.",
+  "description": "Stop second-guessing your choices. Arbtr (Arbitr) is an objective AI decision engine with live voice assistant ZENA that evaluates weighted pros, cons, and trade-offs to deliver clear verdicts.",
   "requestFramePermissions": [
     "microphone"
   ],

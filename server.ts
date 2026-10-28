@@ -1036,6 +1036,16 @@ async function startServer() {
   // Setup WebSocket server for Gemini Live
   setupLiveVoiceWebSocket(server);
 
+  // Robots.txt SEO static route
+  app.get("/robots.txt", (_req, res, next) => {
+    const robotsPath = path.join(process.cwd(), "public", "robots.txt");
+    if (fs.existsSync(robotsPath)) {
+      res.setHeader("Content-Type", "text/plain; charset=utf-8");
+      return res.sendFile(robotsPath);
+    }
+    next();
+  });
+
   // PWA Service Worker & Web App Manifest MIME Type and static routing
   app.get(["/manifest.webmanifest", "/manifest.json"], (_req, res, next) => {
     const manifestPath = path.join(process.cwd(), "public", "manifest.webmanifest");
