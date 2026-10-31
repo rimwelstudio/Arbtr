@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { 
   Mic, 
   MicOff, 
@@ -23,8 +24,8 @@ import {
 import { useLiveVoice, LiveVoiceMessage } from '../hooks/useLiveVoice';
 import { DecisionAnalysisResult } from '../types';
 import { HumanoidVoiceVisualizer } from './HumanoidVoiceVisualizer';
-import { HumanoidIcon } from './HumanoidIcon';
 import { getTranslation, SUPPORTED_LANGUAGES } from '../utils/i18n';
+import { ZenaThemeId, ZENA_THEMES, getStoredZenaTheme } from '../utils/zenaThemes';
 
 interface LiveVoiceModalProps {
   isOpen: boolean;
@@ -109,6 +110,21 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
     defaultVoice: 'Zena',
     language: conversationLanguage,
   });
+
+  // Active character theme from user settings
+  const [characterTheme, setCharacterTheme] = useState<ZenaThemeId>(getStoredZenaTheme);
+  const activeTheme = ZENA_THEMES[characterTheme] || ZENA_THEMES.cyber;
+
+  useEffect(() => {
+    const handleThemeChange = (e: Event) => {
+      const customEvent = e as CustomEvent<ZenaThemeId>;
+      if (customEvent.detail && ZENA_THEMES[customEvent.detail]) {
+        setCharacterTheme(customEvent.detail);
+      }
+    };
+    window.addEventListener('zena-theme-changed', handleThemeChange);
+    return () => window.removeEventListener('zena-theme-changed', handleThemeChange);
+  }, []);
 
   // Auto-scroll transcript
   useEffect(() => {
@@ -291,20 +307,38 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-neutral-200/80 dark:border-neutral-800 bg-neutral-50/70 dark:bg-neutral-900/90">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-neutral-900 dark:bg-neutral-800 text-cyan-400 border border-neutral-700/80 shadow-md shadow-cyan-500/10">
-              <HumanoidIcon 
-                size={22} 
-                isSpeaking={isModelSpeaking} 
-                isListening={isUserSpeaking} 
-                isMuted={isMuted} 
-              />
+            <div 
+              className="relative flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-full border-2 overflow-hidden bg-slate-950 ring-1 transition-all duration-300"
+              style={{
+                borderColor: isModelSpeaking ? activeTheme.secondaryHex : activeTheme.accentHex,
+                boxShadow: `0 0 12px ${isModelSpeaking ? activeTheme.secondaryHex : activeTheme.glowHex}`,
+              }}
+            >
+              <AnimatePresence initial={false}>
+                <motion.img
+                  key={isModelSpeaking ? '/zena-speaking.png' : isUserSpeaking ? '/zena-listening.png' : '/zena-idle.png'}
+                  src={isModelSpeaking ? '/zena-speaking.png' : isUserSpeaking ? '/zena-listening.png' : '/zena-idle.png'}
+                  alt="ZENA Mascot"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3, ease: 'easeInOut' }}
+                  onError={(e) => {
+                    const target = e.currentTarget as HTMLImageElement;
+                    if (target.src !== window.location.origin + '/zena.png') {
+                      target.src = '/zena.png';
+                    }
+                  }}
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+              </AnimatePresence>
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-base sm:text-lg font-semibold text-neutral-900 dark:text-neutral-100 tracking-tight">
-                  {t.liveVoiceTitle || 'Zena Voice Deliberation'}
+                  {t.liveVoiceTitle || 'ZENA Decision Ref'}
                 </h2>
-                <span className="inline-flex items-center gap-1 rounded-md bg-cyan-50 dark:bg-cyan-950/60 px-2 py-0.5 text-xs font-medium text-cyan-700 dark:text-cyan-300 border border-cyan-200/70 dark:border-cyan-800">
+                <span className="inline-flex items-center gap-1 rounded-full bg-cyan-50 dark:bg-cyan-950/60 px-2 py-0.5 text-xs font-medium text-cyan-700 dark:text-cyan-300 border border-cyan-200/70 dark:border-cyan-800">
                   <Sparkles className="h-3 w-3 text-cyan-500" />
                   Gemini Live
                 </span>
@@ -522,24 +556,6 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
               </div>
             )}
 
-            {/* Dynamic Status Indicator text */}
-            <div className="mt-2 text-center max-w-md">
-              <p className="text-xs sm:text-sm font-semibold text-neutral-800 dark:text-neutral-200">
-                {status === 'connecting' && (t.liveVoiceConnecting || 'Connecting...')}
-                {status === 'error' && (errorMessage || 'Connection failed')}
-                {status === 'connected' && isMuted && 'Acoustic sensors muted. Tap microphone or orb to speak.'}
-                {status === 'connected' && !isMuted && isModelSpeaking && `${voice} is speaking...`}
-                {status === 'connected' && !isMuted && isUserSpeaking && `${voice} is listening to you...`}
-                {status === 'connected' && !isMuted && !isModelSpeaking && !isUserSpeaking && 'Speak naturally or tap quick questions below'}
-                {status === 'disconnected' && 'Neural link disconnected'}
-              </p>
-              <p className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5">
-                {status === 'connected' 
-                  ? 'Full-duplex bidirectional audio — interrupt naturally anytime.' 
-                  : 'Please wait while session initializes.'}
-              </p>
-            </div>
-
             {/* Audio controls toolbar (Mic toggle, Speaker toggle, VU meter) */}
             {status === 'connected' && (
               <div className="mt-3 flex items-center gap-2 p-1.5 rounded-full bg-neutral-100/90 dark:bg-neutral-800/90 border border-neutral-200 dark:border-neutral-700 shadow-2xs">
@@ -668,9 +684,11 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
 
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 text-center text-neutral-400 dark:text-neutral-500">
-              <HumanoidIcon size={32} className="mb-2 opacity-35" isListening={status === 'connected' && !isMuted} />
-              <p className="text-xs font-semibold">Voice transcript stream ready.</p>
-              <p className="text-[11px] mt-0.5">Speak naturally or pick a prompt below.</p>
+              <div className="w-12 h-12 rounded-full border-2 border-cyan-400/50 shadow-md overflow-hidden mb-2 bg-slate-950 opacity-80 ring-1 ring-cyan-400/30">
+                <img src="/zena.png" alt="ZENA" className="w-full h-full object-cover" />
+              </div>
+              <p className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">Voice transcript stream ready.</p>
+              <p className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5">Speak naturally or pick a quick question below.</p>
             </div>
           ) : (
             messages.map((m) => {
@@ -692,7 +710,9 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
                 >
                   <div className="flex items-center gap-1.5 mb-1 px-1">
                     {!isUser && (
-                      <HumanoidIcon size={13} className="text-cyan-500" isSpeaking={isModelSpeaking} />
+                      <div className="w-4 h-4 rounded-full border border-cyan-400/60 overflow-hidden shrink-0 shadow-xs">
+                        <img src="/zena.png" alt="ZENA" className="w-full h-full object-cover" />
+                      </div>
                     )}
                     <span className="text-[10px] font-semibold tracking-wider uppercase text-neutral-400 dark:text-neutral-500">
                       {isUser ? (t.liveVoiceYou || 'You') : `Zena (${voice})`}
@@ -734,7 +754,7 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
         </div>
 
         {/* Fallback Text Input & Disconnect Bar */}
-        <div className="p-3 sm:p-4 bg-white dark:bg-neutral-900 border-t border-neutral-200/80 dark:border-neutral-800">
+        <div className="p-3 sm:p-4 pb-safe bg-white dark:bg-neutral-900 border-t border-neutral-200/80 dark:border-neutral-800">
           <form onSubmit={handleSendText} className="flex items-center gap-2">
             <input
               id="live-voice-text-fallback-input"

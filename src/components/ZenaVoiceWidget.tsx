@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import {
   Mic,
   MicOff,
@@ -18,11 +19,14 @@ import {
   ChevronDown,
   Info,
   RotateCcw,
-  Move
+  Move,
+  Palette
 } from 'lucide-react';
 import { ParticleVoiceIcon } from './HumanoidIcon';
 import { DecisionAnalysisResult } from '../types';
 import { getTranslation, SUPPORTED_LANGUAGES } from '../utils/i18n';
+import { ZenaThemeId, ZENA_THEMES, getStoredZenaTheme, setStoredZenaTheme } from '../utils/zenaThemes';
+import { ZenaFrequencyBar } from './ZenaFrequencyBar';
 
 export interface ZenaMessage {
   id: string;
@@ -175,6 +179,26 @@ export const ZenaVoiceWidget: React.FC<ZenaVoiceWidgetProps> = ({
   const [copied, setCopied] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [speechSupported, setSpeechSupported] = useState<boolean>(true);
+
+  // Character theme and glow profiles
+  const [characterTheme, setCharacterTheme] = useState<ZenaThemeId>(getStoredZenaTheme);
+  const activeTheme = ZENA_THEMES[characterTheme] || ZENA_THEMES.cyber;
+
+  useEffect(() => {
+    const handleThemeChange = (e: Event) => {
+      const customEvent = e as CustomEvent<ZenaThemeId>;
+      if (customEvent.detail && ZENA_THEMES[customEvent.detail]) {
+        setCharacterTheme(customEvent.detail);
+      }
+    };
+    window.addEventListener('zena-theme-changed', handleThemeChange);
+    return () => window.removeEventListener('zena-theme-changed', handleThemeChange);
+  }, []);
+
+  const handleSelectTheme = (themeId: ZenaThemeId) => {
+    setCharacterTheme(themeId);
+    setStoredZenaTheme(themeId);
+  };
 
   // Draggable position state for mobile & desktop repositioning
   const [position, setPosition] = useState<WidgetPosition | null>(() => {
@@ -861,13 +885,12 @@ export const ZenaVoiceWidget: React.FC<ZenaVoiceWidgetProps> = ({
 
   return (
     <>
-      {/* 1. DRAGGABLE FLOATING AVATAR WIDGET (Mobile touch draggable & desktop repositionable) */}
-      {/* On mobile, when sheet is open, hide the avatar underneath to avoid touch conflicts */}
+      {/* 1. DRAGGABLE & FLOATING AVATAR WIDGET (Mobile touch draggable & desktop repositionable) */}
       <div
         ref={containerRef}
         id="zena-floating-container"
-        className={`fixed z-40 items-center gap-2.5 pointer-events-auto select-none ${
-          position ? '' : 'bottom-4 right-4 sm:bottom-6 sm:right-6'
+        className={`fixed z-50 items-center gap-2.5 pointer-events-auto select-none ${
+          position ? '' : 'bottom-6 right-6'
         } ${isOpen ? 'hidden sm:flex' : 'flex'}`}
         style={{
           ...(position
@@ -878,8 +901,8 @@ export const ZenaVoiceWidget: React.FC<ZenaVoiceWidgetProps> = ({
                 right: 'auto',
               }
             : {
-                paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-                paddingRight: 'env(safe-area-inset-right, 0px)',
+                paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom, 0px))',
+                paddingRight: 'max(0.5rem, env(safe-area-inset-right, 0px))',
               }),
           touchAction: 'none',
         }}
@@ -892,7 +915,7 @@ export const ZenaVoiceWidget: React.FC<ZenaVoiceWidgetProps> = ({
         {/* Drag Active Tooltip Hint */}
         {isDragging && (
           <div
-            className="absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap px-2.5 py-1 rounded-full bg-neutral-900/95 dark:bg-neutral-800/95 text-white text-[10px] font-semibold border border-cyan-400/60 shadow-xl pointer-events-none flex items-center gap-1.5 animate-pulse z-50 backdrop-blur-md"
+            className="absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap px-2.5 py-1 rounded-full bg-slate-950/95 text-white text-[10px] font-semibold border border-cyan-400/60 shadow-xl pointer-events-none flex items-center gap-1.5 animate-pulse z-50 backdrop-blur-md"
             aria-live="polite"
           >
             <Move className="w-3 h-3 text-cyan-400 animate-spin" style={{ animationDuration: '3s' }} />
@@ -904,7 +927,7 @@ export const ZenaVoiceWidget: React.FC<ZenaVoiceWidgetProps> = ({
         <button
           type="button"
           onClick={handleAvatarPress}
-          className="hidden sm:flex items-center gap-2 rounded-full border border-neutral-200/90 dark:border-neutral-800 bg-white/95 dark:bg-neutral-900/95 py-2 px-3.5 shadow-lg shadow-neutral-950/10 backdrop-blur-md text-xs font-semibold text-neutral-800 dark:text-neutral-100 hover:border-cyan-500/50 hover:text-cyan-600 dark:hover:text-cyan-400 transition-all cursor-grab active:cursor-grabbing group"
+          className="hidden sm:flex items-center gap-2 rounded-full border border-neutral-200/90 dark:border-neutral-800 bg-white/95 dark:bg-slate-950/95 py-2 px-3.5 shadow-lg shadow-neutral-950/10 backdrop-blur-md text-xs font-semibold text-neutral-800 dark:text-neutral-100 hover:border-cyan-500/50 hover:text-cyan-600 dark:hover:text-cyan-400 transition-all cursor-grab active:cursor-grabbing group"
           title={position ? 'Drag to reposition • Click to talk (Repositioned)' : 'Drag to reposition • Click to talk'}
         >
           {/* Subtle Drag Grip Icon */}
@@ -914,22 +937,22 @@ export const ZenaVoiceWidget: React.FC<ZenaVoiceWidgetProps> = ({
           <span className="relative flex h-2 w-2">
             {status === 'speaking' ? (
               <>
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500" />
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500" />
               </>
             ) : status === 'listening' ? (
               <>
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500" />
               </>
             ) : status === 'deliberating' ? (
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500 animate-pulse" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500 animate-pulse" />
             ) : (
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
             )}
           </span>
 
-          <span className="tracking-wide uppercase font-bold text-[11px] bg-gradient-to-r from-cyan-600 to-indigo-600 dark:from-cyan-400 dark:to-indigo-400 bg-clip-text text-transparent">
+          <span className="tracking-wide uppercase font-bold text-[11px] bg-gradient-to-r from-cyan-400 to-indigo-400 bg-clip-text text-transparent">
             ZENA
           </span>
 
@@ -942,72 +965,110 @@ export const ZenaVoiceWidget: React.FC<ZenaVoiceWidgetProps> = ({
               ? 'Listening...'
               : status === 'deliberating'
               ? 'Analyzing...'
-              : 'Voice Arbiter'}
+              : 'Decision Ref'}
           </span>
         </button>
 
-        {/* The Interactive Glowing Avatar Button: Minimum 56x56px with safe mobile touch handling */}
+        {/* The Interactive Mascot Avatar Button: 64x64px (desktop) / 56x56px (mobile) */}
         <div className="relative flex items-center justify-center">
-          {/* Acoustic ripple wave rings when listening or speaking */}
-          {(status === 'listening' || status === 'speaking') && (
+          {/* Audio-reactive pulse rings when listening or speaking */}
+          {status === 'listening' && (
             <div
-              className={`absolute -inset-3 rounded-full pointer-events-none ${
-                status === 'speaking' ? 'bg-cyan-500/20' : 'bg-emerald-500/20'
-              } animate-ping`}
-              style={{ animationDuration: status === 'speaking' ? '1.2s' : '1.8s' }}
+              className="absolute -inset-2.5 rounded-full pointer-events-none bg-cyan-400/25 animate-ping"
+              style={{ animationDuration: '1.6s' }}
+            />
+          )}
+          {status === 'speaking' && (
+            <div
+              className="absolute -inset-2.5 rounded-full pointer-events-none bg-purple-500/30 animate-ping"
+              style={{ animationDuration: '1.2s' }}
             />
           )}
 
-          <button
+          <motion.button
             id="zena-floating-avatar-btn"
             type="button"
             onClick={handleAvatarPress}
-            style={{
-              transform: `scale(${isDragging ? 1.1 : reactiveScale})`,
-              touchAction: 'none', // Critical for 100% reliable touch drag on mobile viewports
+            animate={{
+              y: isDragging ? 0 : [0, -6, 0],
             }}
-            className={`relative flex items-center justify-center min-w-[56px] min-h-[56px] w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-tr from-cyan-500 via-indigo-600 to-purple-600 p-0.5 text-white transition-all duration-200 cursor-grab active:cursor-grabbing ${reactiveGlow} ${
-              isDragging ? 'ring-4 ring-cyan-400 scale-110 shadow-[0_0_40px_rgba(6,182,212,0.95)]' : 'active:scale-95'
-            }`}
-            aria-label="Open ZENA Voice Persona Widget"
+            transition={{
+              y: {
+                repeat: Infinity,
+                duration: 3,
+                ease: 'easeInOut',
+              },
+            }}
+            whileTap={{ scale: 0.94 }}
+            style={{
+              touchAction: 'none',
+            }}
+            className={`relative flex items-center justify-center min-w-[56px] min-h-[56px] w-14 h-14 sm:w-16 sm:h-16 sm:min-w-[64px] sm:min-h-[64px] rounded-full p-0.5 transition-all duration-300 cursor-grab active:cursor-grabbing select-none ${
+              status === 'speaking'
+                ? `${activeTheme.speakingBorder} ${activeTheme.speakingShadow} ${activeTheme.speakingRing}`
+                : status === 'listening'
+                ? `${activeTheme.listeningBorder} ${activeTheme.listeningRing} ${activeTheme.listeningShadow} animate-pulse`
+                : `${activeTheme.idleBorder} ${activeTheme.idleShadow}`
+            } bg-slate-950/80 backdrop-blur-md`}
+            aria-label="Open ZENA Decision Referee"
             title={
               position
-                ? 'Drag to reposition • Tap to talk to ZENA (Repositioned)'
-                : 'Drag to reposition • Tap to talk to ZENA'
+                ? 'Drag to reposition • Tap to consult ZENA (Repositioned)'
+                : 'Drag to reposition • Tap to consult ZENA'
             }
           >
-            {/* Inner Dark Glass Orb Container */}
-            <div className="relative flex h-full w-full items-center justify-center rounded-full bg-neutral-950/90 backdrop-blur-sm overflow-hidden p-2">
-              {/* Idle subtle breathing particle core */}
-              <ParticleVoiceIcon
-                size={28}
-                isSpeaking={status === 'speaking'}
-                isListening={status === 'listening'}
-                isMuted={isSpeakerMuted}
-                animated={true}
-                className="transition-transform duration-300"
-              />
+            {/* Official Mascot Avatar Asset with Dynamic Expression States */}
+            <div className="relative h-full w-full rounded-full overflow-hidden flex items-center justify-center bg-slate-950">
+              <AnimatePresence initial={false}>
+                <motion.img
+                  key={status === 'speaking' ? '/zena-speaking.png' : status === 'listening' ? '/zena-listening.png' : '/zena-idle.png'}
+                  src={status === 'speaking' ? '/zena-speaking.png' : status === 'listening' ? '/zena-listening.png' : '/zena-idle.png'}
+                  alt={`ZENA mascot - ${status}`}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3, ease: 'easeInOut' }}
+                  onError={(e) => {
+                    const target = e.currentTarget as HTMLImageElement;
+                    if (target.src !== window.location.origin + '/zena.png') {
+                      target.src = '/zena.png';
+                    }
+                  }}
+                  className="absolute inset-0 w-full h-full object-cover rounded-full pointer-events-none select-none transition-transform duration-300 hover:scale-105"
+                  draggable={false}
+                />
+              </AnimatePresence>
 
-              {/* Live Audio Frequency Ripples Overlay */}
+              {/* Dynamic speaking audio frequency border ripple */}
               {audioLevel > 0.05 && (
                 <div
-                  className="absolute inset-0 rounded-full border border-cyan-400/40 pointer-events-none animate-pulse"
-                  style={{ opacity: audioLevel }}
+                  className="absolute inset-0 rounded-full border pointer-events-none animate-pulse z-10"
+                  style={{ borderColor: activeTheme.accentHex, opacity: audioLevel }}
                 />
               )}
             </div>
 
-            {/* Micro Live Mic Icon Indicator Badge */}
+            {/* Micro Status Dot Badge (Bottom-Right) */}
             <span
-              className={`absolute -bottom-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white dark:border-neutral-950 text-[10px] shadow-sm ${
-                isMicActive
-                  ? 'bg-emerald-500 text-white animate-pulse'
-                  : 'bg-neutral-800 text-neutral-300'
+              className={`absolute -bottom-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full border-2 border-slate-950 text-[10px] shadow-sm z-10 ${
+                status === 'speaking'
+                  ? `${activeTheme.dotColor.speaking} text-white animate-pulse`
+                  : status === 'listening'
+                  ? `${activeTheme.dotColor.listening} text-white animate-pulse`
+                  : status === 'deliberating'
+                  ? 'bg-amber-500 text-white animate-pulse'
+                  : `${activeTheme.dotColor.idle} text-white`
               }`}
             >
-              {isMicActive ? <Mic className="h-2.5 w-2.5" /> : <Sparkles className="h-2.5 w-2.5 text-cyan-400" />}
+              {status === 'speaking' ? (
+                <Volume2 className="h-2.5 w-2.5" />
+              ) : isMicActive ? (
+                <Mic className="h-2.5 w-2.5" />
+              ) : (
+                <Sparkles className="h-2.5 w-2.5" />
+              )}
             </span>
-          </button>
+          </motion.button>
         </div>
       </div>
 
@@ -1048,18 +1109,34 @@ export const ZenaVoiceWidget: React.FC<ZenaVoiceWidgetProps> = ({
           </div>
 
           {/* Header */}
-          <div className="shrink-0 flex items-center justify-between px-4 sm:px-5 py-3 border-b border-neutral-200/80 dark:border-neutral-800 bg-neutral-50/80 dark:bg-neutral-950/50 backdrop-blur-md gap-3">
-            <div className="flex items-center gap-2.5 min-w-0">
-              {/* Header Avatar with Glow */}
-              <div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 p-0.5 text-white shadow-sm ring-1 ring-cyan-400/40">
-                <div className="flex h-full w-full items-center justify-center rounded-[10px] bg-neutral-950">
-                  <ParticleVoiceIcon
-                    size={20}
-                    isSpeaking={status === 'speaking'}
-                    isListening={status === 'listening'}
-                    animated={true}
+          <div className="shrink-0 flex items-center justify-between px-4 sm:px-5 py-3 border-b border-neutral-200/80 dark:border-cyan-500/20 bg-neutral-50/80 dark:bg-slate-950/80 backdrop-blur-md gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              {/* Circular Mascot Preview */}
+              <div 
+                className="relative flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-full border-2 overflow-hidden bg-slate-950 ring-1 transition-all duration-300"
+                style={{
+                  borderColor: status === 'speaking' ? activeTheme.secondaryHex : activeTheme.accentHex,
+                  boxShadow: `0 0 14px ${status === 'speaking' ? activeTheme.secondaryHex : activeTheme.glowHex}`,
+                }}
+              >
+                <AnimatePresence initial={false}>
+                  <motion.img
+                    key={status === 'speaking' ? '/zena-speaking.png' : status === 'listening' ? '/zena-listening.png' : '/zena-idle.png'}
+                    src={status === 'speaking' ? '/zena-speaking.png' : status === 'listening' ? '/zena-listening.png' : '/zena-idle.png'}
+                    alt={`ZENA mascot - ${status}`}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.3, ease: 'easeInOut' }}
+                    onError={(e) => {
+                      const target = e.currentTarget as HTMLImageElement;
+                      if (target.src !== window.location.origin + '/zena.png') {
+                        target.src = '/zena.png';
+                      }
+                    }}
+                    className="absolute inset-0 h-full w-full object-cover"
                   />
-                </div>
+                </AnimatePresence>
               </div>
 
               <div className="min-w-0">
@@ -1067,23 +1144,34 @@ export const ZenaVoiceWidget: React.FC<ZenaVoiceWidgetProps> = ({
                   <h3 className="font-bold text-sm sm:text-base text-neutral-950 dark:text-white tracking-tight">
                     ZENA
                   </h3>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-cyan-500/10 dark:bg-cyan-500/20 px-2 py-0.5 text-[10px] font-bold text-cyan-700 dark:text-cyan-300 border border-cyan-500/30 uppercase tracking-wider">
-                    <span className="relative flex h-1.5 w-1.5">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" />
-                      <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-cyan-500" />
-                    </span>
-                    {status === 'speaking'
-                      ? 'Speaking'
-                      : status === 'listening'
-                      ? 'Listening'
-                      : status === 'deliberating'
-                      ? 'Analyzing'
-                      : 'Voice Arbiter'}
+                  <span className="inline-flex items-center gap-1 rounded-full bg-cyan-500/10 dark:bg-cyan-500/20 px-2.5 py-0.5 text-[10px] font-bold text-cyan-700 dark:text-cyan-300 border border-cyan-500/30">
+                    Arbitr Decision Ref
                   </span>
                 </div>
-                <p className="text-[11px] text-neutral-500 dark:text-neutral-400 truncate">
-                  {activeDecision ? `Context: ${activeDecision.title}` : 'Ready to evaluate trade-offs'}
-                </p>
+                <div className="flex items-center gap-1.5 text-[11px] text-neutral-600 dark:text-neutral-300 truncate mt-0.5">
+                  <span className="relative flex h-2 w-2 shrink-0">
+                    <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
+                      status === 'listening' ? 'bg-emerald-400' :
+                      status === 'speaking' ? 'bg-purple-400' :
+                      'bg-emerald-400'
+                    }`} />
+                    <span className={`relative inline-flex rounded-full h-2 w-2 ${
+                      status === 'listening' ? 'bg-emerald-500' :
+                      status === 'speaking' ? 'bg-purple-500' :
+                      status === 'deliberating' ? 'bg-amber-500' :
+                      'bg-emerald-500'
+                    }`} />
+                  </span>
+                  <span className="font-medium truncate">
+                    {status === 'listening'
+                      ? 'Online & Listening'
+                      : status === 'speaking'
+                      ? 'Speaking Verdict'
+                      : status === 'deliberating'
+                      ? 'Deliberating Trade-offs'
+                      : 'Online & Listening'}
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -1294,6 +1382,79 @@ export const ZenaVoiceWidget: React.FC<ZenaVoiceWidgetProps> = ({
               {/* TAB 2: SETTINGS & LANGUAGE VIEW */}
               {sheetTab === 'settings' && (
                 <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3.5 text-xs text-neutral-800 dark:text-neutral-200 bg-neutral-50/50 dark:bg-neutral-900/50">
+                  {/* ZENA Character Theme & Glow Profiles Toggle */}
+                  <div className="p-3.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Palette className="h-4 w-4" style={{ color: activeTheme.accentHex }} />
+                        <span className="text-[10px] uppercase font-bold text-neutral-400 dark:text-neutral-500 tracking-wider">
+                          ZENA Character Themes & Glow Profiles
+                        </span>
+                      </div>
+                      <span 
+                        className="text-[10px] font-bold px-2 py-0.5 rounded-full border transition-colors duration-200"
+                        style={{
+                          backgroundColor: `${activeTheme.accentHex}18`,
+                          borderColor: `${activeTheme.accentHex}50`,
+                          color: activeTheme.accentHex,
+                        }}
+                      >
+                        {activeTheme.name}
+                      </span>
+                    </div>
+
+                    <p className="text-[11px] text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                      Choose ZENA&apos;s interactive character theme for glow halos, microphone pulse rings, and acoustic frequency matrix effects. Saved in your user settings.
+                    </p>
+
+                    {/* Interactive 6-theme palette grid */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-1">
+                      {Object.values(ZENA_THEMES).map((theme) => {
+                        const isSelected = theme.id === characterTheme;
+                        return (
+                          <button
+                            key={theme.id}
+                            type="button"
+                            onClick={() => handleSelectTheme(theme.id)}
+                            className={`group relative flex flex-col items-start p-2.5 rounded-xl border text-left transition-all duration-200 cursor-pointer ${
+                              isSelected
+                                ? 'border-2 bg-neutral-50/80 dark:bg-neutral-900/80 shadow-xs'
+                                : 'border-neutral-200 dark:border-neutral-700/80 bg-white dark:bg-neutral-800/60 hover:border-neutral-300 dark:hover:border-neutral-600'
+                            }`}
+                            style={{
+                              borderColor: isSelected ? theme.accentHex : undefined,
+                              boxShadow: isSelected ? `0 0 14px ${theme.glowHex}` : undefined,
+                            }}
+                          >
+                            {/* Color Swatch & Selection Indicator */}
+                            <div className="flex items-center justify-between w-full mb-1.5">
+                              <span
+                                className={`h-4 w-4 rounded-full bg-gradient-to-tr ${theme.swatchGradient} shadow-xs ring-1 ring-black/10 dark:ring-white/10`}
+                              />
+                              {isSelected ? (
+                                <span 
+                                  className="flex h-4 w-4 items-center justify-center rounded-full text-white text-[9px] shadow-xs"
+                                  style={{ backgroundColor: theme.accentHex }}
+                                >
+                                  <Check className="h-2.5 w-2.5 stroke-[3]" />
+                                </span>
+                              ) : (
+                                <span className="h-3.5 w-3.5 rounded-full border border-neutral-300 dark:border-neutral-600 group-hover:border-neutral-400" />
+                              )}
+                            </div>
+
+                            <span className="font-bold text-xs text-neutral-900 dark:text-white leading-tight">
+                              {theme.name}
+                            </span>
+                            <span className="text-[10px] text-neutral-500 dark:text-neutral-400 line-clamp-1 mt-0.5">
+                              {theme.tagline}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
                   <div className="p-3.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 space-y-2">
                     <span className="text-[10px] uppercase font-bold text-neutral-400 dark:text-neutral-500 tracking-wider">Active Language Alignment</span>
                     <div className="flex items-center justify-between">
@@ -1587,7 +1748,7 @@ export const ZenaVoiceWidget: React.FC<ZenaVoiceWidgetProps> = ({
                         ) : (
                           <div className="flex items-center gap-2">
                             <Mic className="h-4 w-4" />
-                            <span>Start Speaking to ZENA</span>
+                            <span>Hold or Tap to Speak</span>
                           </div>
                         )}
                       </button>
@@ -1634,6 +1795,15 @@ export const ZenaVoiceWidget: React.FC<ZenaVoiceWidgetProps> = ({
               )}
             </>
           )}
+
+          {/* Subtle, Non-Intrusive Live Audio Frequency Visualization Bar flowing along bottom edge */}
+          <div className="shrink-0 w-full bg-slate-950/90 border-t border-neutral-200/40 dark:border-cyan-500/20">
+            <ZenaFrequencyBar
+              status={status}
+              audioLevel={audioLevel}
+              theme={activeTheme}
+            />
+          </div>
         </div>
       )}
     </>

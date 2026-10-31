@@ -45,6 +45,7 @@ import { useAuth } from './contexts/AuthContext';
 import { DecisionAnalysisResult, OptionAnalysis, DecisionPreset } from './types';
 import { DecisionLoadingState } from './components/DecisionLoadingState';
 import { saveDecisionToFirestore, deleteDecisionFromFirestore, subscribeToUserDecisions } from './services/decisionsDb';
+import { getSavedDecisions, saveDecision, deleteSavedDecision } from './utils/storage';
 import { formatDecisionAsMarkdown } from './utils/export';
 import { getTranslation, isRTL } from './utils/i18n';
 import { ArbitrEmblem } from './components/ArbitrLogo';
@@ -134,9 +135,22 @@ export default function App() {
     localStorage.setItem('tiebreaker_ui_language', currentLanguage);
   }, [currentLanguage]);
 
-  // Real-time Firestore sync: Only authenticated users can access and save decisions
+  // Real-time Firestore sync for authenticated users; LocalStorage for guests
   useEffect(() => {
     if (user) {
+      // If there are guest decisions in localStorage, automatically sync them to Firestore
+      const guestDecisions = getSavedDecisions();
+      if (guestDecisions.length > 0) {
+        Promise.all(
+          guestDecisions.map((d) => saveDecisionToFirestore(user.uid, d).catch(() => {}))
+        ).then(() => {
+          // Clear local guest cache once migrated
+          try {
+            localStorage.removeItem('the_tiebreaker_saved_decisions');
+          } catch {}
+        });
+      }
+
       const unsubscribe = subscribeToUserDecisions(
         user.uid,
         (cloudDecisions) => {
@@ -148,8 +162,8 @@ export default function App() {
       );
       return () => unsubscribe();
     } else {
-      // Clear saved decisions when unauthenticated
-      setSavedDecisions([]);
+      // Unauthenticated: load decisions from localStorage
+      setSavedDecisions(getSavedDecisions());
     }
   }, [user]);
 
@@ -216,7 +230,7 @@ export default function App() {
       setIsViewingOriginal(false);
       setActiveTab('verdict');
 
-      // Only allow authenticated users to save their Arbitr decisions
+      // Auto-save: save to cloud if user is signed in, or save to localStorage for guests
       if (user) {
         try {
           await saveDecisionToFirestore(user.uid, result);
@@ -225,6 +239,9 @@ export default function App() {
         } catch (saveErr) {
           console.warn('[Firestore] Could not auto-save to cloud:', saveErr);
         }
+      } else {
+        saveDecision(result);
+        setSavedDecisions(getSavedDecisions());
       }
     } catch (err: any) {
       console.error('Analysis error:', err);
@@ -237,9 +254,11 @@ export default function App() {
   const handleSaveActiveDecision = async () => {
     if (!activeDecision) return;
     if (!user) {
-      setAuthModalMode('signin');
-      setAuthPromptReason('Sign in with Google or Email to save this decision to your account.');
-      setShowAuthModal(true);
+      // Save locally for guest users, and show positive feedback
+      saveDecision(activeDecision);
+      setSavedDecisions(getSavedDecisions());
+      setSaveSuccessToast(true);
+      setTimeout(() => setSaveSuccessToast(false), 2500);
       return;
     }
     try {
@@ -260,6 +279,9 @@ export default function App() {
     setActiveDecision(updatedDecision);
     if (user) {
       saveDecisionToFirestore(user.uid, updatedDecision).catch(console.warn);
+    } else {
+      saveDecision(updatedDecision);
+      setSavedDecisions(getSavedDecisions());
     }
   };
 
@@ -290,6 +312,8 @@ export default function App() {
       } catch (err) {
         console.error('[Firestore] Failed to delete decision:', err);
       }
+    } else {
+      deleteSavedDecision(id);
     }
     setSavedDecisions((prev) => prev.filter((d) => d.id !== id));
     if (activeDecision?.id === id) {
@@ -310,6 +334,9 @@ export default function App() {
     setIsViewingOriginal(false);
     if (user) {
       saveDecisionToFirestore(user.uid, translatedDecision).catch(console.warn);
+    } else {
+      saveDecision(translatedDecision);
+      setSavedDecisions(getSavedDecisions());
     }
   };
 

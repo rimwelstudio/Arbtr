@@ -55,6 +55,7 @@ export const HistoryDrawer: React.FC<HistoryDrawerProps> = ({
   onSelectDecision,
   onDeleteDecision,
   currentLanguage,
+  onOpenAuth,
 }) => {
   const t = getTranslation(currentLanguage);
   const { user } = useAuth();
@@ -143,7 +144,7 @@ export const HistoryDrawer: React.FC<HistoryDrawerProps> = ({
             </div>
 
         {/* User Account & Cloud Sync Status Banner */}
-        {user && (
+        {user ? (
           <div className="px-5 py-2.5 bg-neutral-50 dark:bg-neutral-900/90 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between text-xs">
             <div className="flex items-center gap-2 text-neutral-700 dark:text-neutral-200 font-medium truncate">
               <Cloud className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
@@ -153,6 +154,20 @@ export const HistoryDrawer: React.FC<HistoryDrawerProps> = ({
               <span className="h-2 w-2 rounded-full bg-emerald-500 inline-block animate-pulse" />
               <span>Active</span>
             </span>
+          </div>
+        ) : (
+          <div className="px-5 py-2.5 bg-amber-50/80 dark:bg-amber-950/30 border-b border-amber-200/60 dark:border-amber-800/40 flex items-center justify-between text-xs">
+            <div className="flex items-center gap-2 text-amber-900 dark:text-amber-200 font-medium truncate">
+              <Cloud className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
+              <span className="truncate">Saved locally on this device</span>
+            </div>
+            <button
+              type="button"
+              onClick={onOpenAuth}
+              className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer shrink-0"
+            >
+              Sign In to Cloud Sync
+            </button>
           </div>
         )}
 
