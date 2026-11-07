@@ -288,7 +288,7 @@ export const InsightFeedback: React.FC<InsightFeedbackProps> = ({
                         value={note}
                         onChange={(e) => setNote(e.target.value)}
                         placeholder={t.feedbackAddNote || 'Add an optional note...'}
-                        className="w-full rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800/80 px-3 py-1.5 text-xs text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 focus:outline-hidden focus:ring-1.5 focus:ring-indigo-500"
+                        className="w-full rounded-xl border border-neutral-200 dark:border-white/15 bg-white dark:bg-slate-900/90 px-3 py-1.5 text-xs text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-slate-400 focus:outline-hidden focus:ring-1.5 focus:ring-cyan-400 focus:border-cyan-400"
                       />
                     </div>
                     <button

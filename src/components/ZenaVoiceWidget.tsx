@@ -931,7 +931,7 @@ export const ZenaVoiceWidget: React.FC<ZenaVoiceWidgetProps> = ({
           title={position ? 'Drag to reposition • Click to talk (Repositioned)' : 'Drag to reposition • Click to talk'}
         >
           {/* Subtle Drag Grip Icon */}
-          <Move className="h-3 w-3 text-neutral-400 dark:text-neutral-500 opacity-60 group-hover:opacity-100 group-hover:text-cyan-500 transition-all" />
+          <Move className="h-3 w-3 text-neutral-400 dark:text-slate-400 opacity-60 group-hover:opacity-100 group-hover:text-cyan-500 transition-all" />
 
           {/* Status Indicator Dot */}
           <span className="relative flex h-2 w-2">
@@ -956,7 +956,7 @@ export const ZenaVoiceWidget: React.FC<ZenaVoiceWidgetProps> = ({
             ZENA
           </span>
 
-          <span className="text-neutral-400 dark:text-neutral-500 font-normal">•</span>
+          <span className="text-neutral-400 dark:text-slate-400 font-normal">•</span>
 
           <span className="text-[11px] text-neutral-600 dark:text-neutral-300 font-medium">
             {status === 'speaking'
@@ -1323,7 +1323,7 @@ export const ZenaVoiceWidget: React.FC<ZenaVoiceWidgetProps> = ({
                   {activeDecision ? (
                     <div className="space-y-3">
                       <div className="p-3.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800">
-                        <span className="text-[10px] uppercase font-bold text-neutral-400 dark:text-neutral-500 tracking-wider">Active Dilemma</span>
+                        <span className="text-[10px] uppercase font-bold text-neutral-400 dark:text-slate-400 tracking-wider">Active Dilemma</span>
                         <h4 className="font-bold text-sm text-neutral-900 dark:text-white mt-1">{activeDecision.title}</h4>
                         {activeDecision.context && (
                           <p className="mt-1 text-neutral-600 dark:text-neutral-300 text-xs leading-relaxed">{activeDecision.context}</p>
@@ -1387,7 +1387,7 @@ export const ZenaVoiceWidget: React.FC<ZenaVoiceWidgetProps> = ({
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <Palette className="h-4 w-4" style={{ color: activeTheme.accentHex }} />
-                        <span className="text-[10px] uppercase font-bold text-neutral-400 dark:text-neutral-500 tracking-wider">
+                        <span className="text-[10px] uppercase font-bold text-neutral-400 dark:text-slate-400 tracking-wider">
                           ZENA Character Themes & Glow Profiles
                         </span>
                       </div>
@@ -1456,7 +1456,7 @@ export const ZenaVoiceWidget: React.FC<ZenaVoiceWidgetProps> = ({
                   </div>
 
                   <div className="p-3.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 space-y-2">
-                    <span className="text-[10px] uppercase font-bold text-neutral-400 dark:text-neutral-500 tracking-wider">Active Language Alignment</span>
+                    <span className="text-[10px] uppercase font-bold text-neutral-400 dark:text-slate-400 tracking-wider">Active Language Alignment</span>
                     <div className="flex items-center justify-between">
                       <span className="font-semibold text-neutral-900 dark:text-white">
                         {SUPPORTED_LANGUAGES.find((l) => l.code === currentLanguage)?.nativeName || currentLanguage}
@@ -1471,7 +1471,7 @@ export const ZenaVoiceWidget: React.FC<ZenaVoiceWidgetProps> = ({
                   </div>
 
                   <div className="p-3.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 space-y-2.5">
-                    <span className="text-[10px] uppercase font-bold text-neutral-400 dark:text-neutral-500 tracking-wider">Voice & Audio Mode</span>
+                    <span className="text-[10px] uppercase font-bold text-neutral-400 dark:text-slate-400 tracking-wider">Voice & Audio Mode</span>
                     <div className="flex items-center justify-between">
                       <span>Audio Speech Synthesis:</span>
                       <button

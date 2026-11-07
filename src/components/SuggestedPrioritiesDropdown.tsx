@@ -295,7 +295,7 @@ export const SuggestedPrioritiesDropdown: React.FC<SuggestedPrioritiesDropdownPr
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Filter priorities by name or description..."
-                    className="w-full pl-8 pr-7 py-1.5 text-xs rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:border-indigo-500 dark:focus:border-indigo-400 focus:outline-hidden transition-all shadow-2xs"
+                    className="w-full pl-8 pr-7 py-1.5 text-xs rounded-xl border border-neutral-200 dark:border-white/15 bg-white dark:bg-slate-900/90 text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-slate-400 focus:border-cyan-400 dark:focus:border-cyan-400 focus:outline-hidden transition-all shadow-2xs"
                   />
                   {searchQuery && (
                     <button
@@ -309,30 +309,30 @@ export const SuggestedPrioritiesDropdown: React.FC<SuggestedPrioritiesDropdownPr
                 </div>
 
                 {/* Sort base on values selector */}
-                <div className="flex items-center gap-1.5 shrink-0 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl px-2.5 py-1 text-xs">
-                  <ArrowUpDown className="w-3 h-3 text-indigo-500 dark:text-indigo-400 shrink-0" />
-                  <span className="text-[11px] font-semibold text-neutral-500 dark:text-neutral-400 whitespace-nowrap">
+                <div className="flex items-center gap-1.5 shrink-0 bg-white dark:bg-slate-900/90 border border-neutral-200 dark:border-white/15 rounded-xl px-2.5 py-1 text-xs">
+                  <ArrowUpDown className="w-3 h-3 text-indigo-500 dark:text-cyan-400 shrink-0" />
+                  <span className="text-[11px] font-semibold text-neutral-500 dark:text-slate-400 whitespace-nowrap">
                     Sort:
                   </span>
                   <select
                     id="priorities-sort-select"
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value as PrioritySortOption)}
-                    className="bg-transparent text-xs font-semibold text-neutral-800 dark:text-neutral-200 focus:outline-hidden cursor-pointer pr-1"
+                    className="bg-transparent text-xs font-semibold text-neutral-800 dark:text-white focus:outline-hidden cursor-pointer pr-1"
                   >
-                    <option value="category" className="bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100">
+                    <option value="category" className="bg-slate-900 text-white">
                       By Value Domain
                     </option>
-                    <option value="selected-first" className="bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100">
+                    <option value="selected-first" className="bg-slate-900 text-white">
                       Ticked / Selected First
                     </option>
-                    <option value="alpha-asc" className="bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100">
+                    <option value="alpha-asc" className="bg-slate-900 text-white">
                       Values (A → Z)
                     </option>
-                    <option value="alpha-desc" className="bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100">
+                    <option value="alpha-desc" className="bg-slate-900 text-white">
                       Values (Z → A)
                     </option>
-                    <option value="recommended" className="bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100">
+                    <option value="recommended" className="bg-slate-900 text-white">
                       Recommended
                     </option>
                   </select>
@@ -405,7 +405,7 @@ export const SuggestedPrioritiesDropdown: React.FC<SuggestedPrioritiesDropdownPr
               className="overflow-y-auto max-h-[320px] p-2 space-y-1 divide-y divide-neutral-100/60 dark:divide-neutral-800/60"
             >
               {processedPriorities.length === 0 ? (
-                <div className="py-8 text-center text-xs text-neutral-400 dark:text-neutral-500">
+                <div className="py-8 text-center text-xs text-neutral-400 dark:text-slate-400">
                   <p>No suggested priorities match your filter.</p>
                   <button
                     type="button"
@@ -413,7 +413,7 @@ export const SuggestedPrioritiesDropdown: React.FC<SuggestedPrioritiesDropdownPr
                       setSearchQuery('');
                       setActiveCategory('all');
                     }}
-                    className="mt-2 text-indigo-600 dark:text-indigo-400 font-semibold hover:underline cursor-pointer"
+                    className="mt-2 text-indigo-600 dark:text-cyan-400 font-semibold hover:underline cursor-pointer"
                   >
                     Reset filters
                   </button>
@@ -441,7 +441,7 @@ export const SuggestedPrioritiesDropdown: React.FC<SuggestedPrioritiesDropdownPr
                               <span className="h-1.5 w-1.5 rounded-full bg-indigo-500 shrink-0" />
                               {catDef.label}
                             </span>
-                            <span className="text-[10px] text-neutral-400 dark:text-neutral-500 font-normal">
+                            <span className="text-[10px] text-neutral-400 dark:text-slate-400 font-normal">
                               {catDef.description}
                             </span>
                           </div>

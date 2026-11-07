@@ -478,21 +478,21 @@ export const VerdictView: React.FC<VerdictViewProps> = ({
                       toggleStep(idx);
                     }}
                     aria-label={`Toggle ${stepLabel}`}
-                    className="mt-0.5 shrink-0 text-neutral-400 dark:text-neutral-500"
+                    className="mt-0.5 shrink-0 text-neutral-400 dark:text-slate-400"
                   >
                     {isChecked ? (
                       <CheckSquare className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                     ) : (
-                      <Square className="h-4 w-4 text-neutral-400 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300" />
+                      <Square className="h-4 w-4 text-neutral-400 dark:text-slate-400 hover:text-neutral-700 dark:hover:text-neutral-200" />
                     )}
                   </button>
                   <div className="text-xs sm:text-sm flex-1 min-w-0">
-                    <p className={`font-semibold leading-snug ${isChecked ? 'line-through text-neutral-500 dark:text-neutral-500' : 'text-neutral-900 dark:text-neutral-100'}`}>
+                    <p className={`font-semibold leading-snug ${isChecked ? 'line-through text-neutral-500 dark:text-slate-400' : 'text-neutral-900 dark:text-neutral-100'}`}>
                       <span className="text-neutral-500 dark:text-neutral-400 font-normal mr-1.5">{stepLabel}:</span>
                       {step.title}
                     </p>
                     {step.description && step.description !== step.title && (
-                      <p className={`mt-1 text-xs leading-relaxed ${isChecked ? 'line-through text-neutral-400 dark:text-neutral-500' : 'text-neutral-600 dark:text-neutral-300'}`}>
+                      <p className={`mt-1 text-xs leading-relaxed ${isChecked ? 'line-through text-neutral-400 dark:text-slate-400' : 'text-neutral-600 dark:text-neutral-300'}`}>
                         {step.description}
                       </p>
                     )}

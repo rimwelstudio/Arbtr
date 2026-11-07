@@ -235,7 +235,7 @@ export const PrivacyModal: React.FC<PrivacyModalProps> = ({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search privacy, AI data, GDPR, security, cookies..."
-                className="w-full pl-9 pr-8 py-1.5 text-xs rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50/70 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-400 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/30 transition-all shadow-2xs"
+                className="w-full pl-9 pr-8 py-1.5 text-xs rounded-xl border border-neutral-200 dark:border-white/15 bg-neutral-50/70 dark:bg-slate-900/90 text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-cyan-400/40 focus:border-cyan-400 transition-all shadow-2xs"
               />
               {searchQuery && (
                 <button

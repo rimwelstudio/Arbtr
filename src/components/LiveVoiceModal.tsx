@@ -455,11 +455,11 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
                     startSession(decisionContextString, voice, newLang);
                   }
                 }}
-                className="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 py-1 px-2 text-xs font-semibold text-neutral-800 dark:text-neutral-200 shadow-2xs focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer"
+                className="rounded-lg border border-neutral-200 dark:border-white/15 bg-white dark:bg-slate-900/90 py-1 px-2 text-xs font-semibold text-neutral-800 dark:text-white shadow-2xs focus:outline-none focus:border-cyan-400 dark:focus:border-cyan-400 cursor-pointer"
                 title={t.liveVoiceConversationLanguage || 'Conversation Language'}
               >
                 {SUPPORTED_LANGUAGES.map((lang) => (
-                  <option key={lang.code} value={lang.code}>
+                  <option key={lang.code} value={lang.code} className="bg-slate-900 text-white">
                     {lang.flag} {lang.nativeName}
                   </option>
                 ))}
@@ -479,10 +479,10 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
                     startSession(decisionContextString, newVoice, conversationLanguage);
                   }
                 }}
-                className="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 py-1 px-2 text-xs font-semibold text-neutral-800 dark:text-neutral-200 shadow-2xs focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer"
+                className="rounded-lg border border-neutral-200 dark:border-white/15 bg-white dark:bg-slate-900/90 py-1 px-2 text-xs font-semibold text-neutral-800 dark:text-white shadow-2xs focus:outline-none focus:border-cyan-400 dark:focus:border-cyan-400 cursor-pointer"
               >
                 {VOICE_OPTIONS.map((v) => (
-                  <option key={v.id} value={v.id}>
+                  <option key={v.id} value={v.id} className="bg-slate-900 text-white">
                     {v.name} ({v.style})
                   </option>
                 ))}
@@ -683,7 +683,7 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
           </div>
 
           {messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-8 text-center text-neutral-400 dark:text-neutral-500">
+            <div className="flex flex-col items-center justify-center py-8 text-center text-neutral-400 dark:text-slate-400">
               <div className="w-12 h-12 rounded-full border-2 border-cyan-400/50 shadow-md overflow-hidden mb-2 bg-slate-950 opacity-80 ring-1 ring-cyan-400/30">
                 <img src="/zena.png" alt="ZENA" className="w-full h-full object-cover" />
               </div>
@@ -714,7 +714,7 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
                         <img src="/zena.png" alt="ZENA" className="w-full h-full object-cover" />
                       </div>
                     )}
-                    <span className="text-[10px] font-semibold tracking-wider uppercase text-neutral-400 dark:text-neutral-500">
+                    <span className="text-[10px] font-semibold tracking-wider uppercase text-neutral-400 dark:text-slate-400">
                       {isUser ? (t.liveVoiceYou || 'You') : `Zena (${voice})`}
                     </span>
                   </div>
@@ -737,7 +737,7 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
         {/* Quick Inspiration Chips */}
         <div className="px-4 py-2 bg-neutral-100/50 dark:bg-neutral-900/60 border-t border-neutral-200/60 dark:border-neutral-800 overflow-x-auto">
           <div className="flex items-center gap-1.5 whitespace-nowrap text-xs">
-            <span className="text-[11px] font-medium text-neutral-400 dark:text-neutral-500 shrink-0">
+            <span className="text-[11px] font-medium text-neutral-400 dark:text-slate-400 shrink-0">
               {t.liveVoiceQuickPrompts || 'Quick Ask:'}
             </span>
             {quickPrompts.slice(0, 3).map((prompt, i) => (
@@ -762,7 +762,7 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
               value={textInput}
               onChange={(e) => setTextInput(e.target.value)}
               placeholder={status === 'connected' ? (t.liveVoiceTypePlaceholder || 'Type a question or message to Zena...') : 'Ask Zena a question or test a trade-off...'}
-              className="flex-1 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50/50 dark:bg-neutral-800/60 px-3.5 py-2 text-xs sm:text-sm text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="flex-1 rounded-xl border border-neutral-200 dark:border-white/15 bg-neutral-50/50 dark:bg-slate-900/90 px-3.5 py-2 text-xs sm:text-sm text-neutral-900 dark:text-white placeholder-neutral-400 dark:placeholder:text-slate-400 focus:border-cyan-400 dark:focus:border-cyan-400 focus:outline-none focus:ring-1 focus:ring-cyan-400"
             />
             <button
               id="live-voice-send-text-btn"

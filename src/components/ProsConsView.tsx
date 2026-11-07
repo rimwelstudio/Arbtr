@@ -137,7 +137,7 @@ export const ProsConsView: React.FC<ProsConsViewProps> = ({
                 </span>
                 <span>{opt.name}</span>
                 <span className={`text-xs px-1.5 py-0.5 rounded-md ${
-                  isSelected ? 'bg-white/20 dark:bg-neutral-900/10 text-neutral-200 dark:text-neutral-700 font-semibold' : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400'
+                  isSelected ? 'bg-white/20 dark:bg-neutral-900/10 text-neutral-200 dark:text-neutral-900 font-semibold' : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-300'
                 }`}>
                   {opt.score || 70}/100
                 </span>
@@ -205,7 +205,7 @@ export const ProsConsView: React.FC<ProsConsViewProps> = ({
               <h3 className="font-bold text-neutral-900 dark:text-neutral-100 text-base">
                 {t.prosTitle || 'Pros & Advantages'}
               </h3>
-              <span className="text-xs font-semibold text-neutral-400 dark:text-neutral-500">
+              <span className="text-xs font-semibold text-neutral-400 dark:text-slate-400">
                 ({filteredPros.length})
               </span>
             </div>
@@ -286,7 +286,7 @@ export const ProsConsView: React.FC<ProsConsViewProps> = ({
               <h3 className="font-bold text-neutral-900 dark:text-neutral-100 text-base">
                 {t.consTitle || 'Cons & Trade-offs'}
               </h3>
-              <span className="text-xs font-semibold text-neutral-400 dark:text-neutral-500">
+              <span className="text-xs font-semibold text-neutral-400 dark:text-slate-400">
                 ({filteredCons.length})
               </span>
             </div>
@@ -401,7 +401,7 @@ export const ProsConsView: React.FC<ProsConsViewProps> = ({
                   value={newItemText}
                   onChange={(e) => setNewItemText(e.target.value)}
                   placeholder={showAddForm === 'pro' ? "e.g., Offers 4-day workweek during summer" : "e.g., Unclear health insurance deductibles"}
-                  className="w-full rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-2 text-sm text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:border-neutral-900 dark:focus:border-neutral-400"
+                  className="w-full rounded-xl border border-neutral-200 dark:border-white/15 bg-white dark:bg-slate-900/90 px-3 py-2 text-sm text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-slate-400 focus:outline-none focus:border-cyan-400 dark:focus:border-cyan-400"
                 />
               </div>
 
@@ -415,7 +415,7 @@ export const ProsConsView: React.FC<ProsConsViewProps> = ({
                     value={newItemCategory}
                     onChange={(e) => setNewItemCategory(e.target.value)}
                     placeholder="e.g., Lifestyle, Financial"
-                    className="w-full rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-2 text-sm text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:border-neutral-900 dark:focus:border-neutral-400"
+                    className="w-full rounded-xl border border-neutral-200 dark:border-white/15 bg-white dark:bg-slate-900/90 px-3 py-2 text-sm text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-slate-400 focus:outline-none focus:border-cyan-400 dark:focus:border-cyan-400"
                   />
                 </div>
 
@@ -426,12 +426,12 @@ export const ProsConsView: React.FC<ProsConsViewProps> = ({
                   <select
                     value={newItemImpact}
                     onChange={(e) => setNewItemImpact(e.target.value as ImpactLevel)}
-                    className="w-full rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-2 text-sm text-neutral-900 dark:text-neutral-100 focus:outline-none focus:border-neutral-900 dark:focus:border-neutral-400"
+                    className="w-full rounded-xl border border-neutral-200 dark:border-white/15 bg-white dark:bg-slate-900/90 px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-cyan-400 dark:focus:border-cyan-400"
                   >
-                    <option value="critical">{t.impactCritical || 'Critical'}</option>
-                    <option value="high">{t.impactHigh || 'High'}</option>
-                    <option value="medium">{t.impactMedium || 'Medium'}</option>
-                    <option value="low">{t.impactLow || 'Low'}</option>
+                    <option value="critical" className="bg-slate-900 text-white">{t.impactCritical || 'Critical'}</option>
+                    <option value="high" className="bg-slate-900 text-white">{t.impactHigh || 'High'}</option>
+                    <option value="medium" className="bg-slate-900 text-white">{t.impactMedium || 'Medium'}</option>
+                    <option value="low" className="bg-slate-900 text-white">{t.impactLow || 'Low'}</option>
                   </select>
                 </div>
               </div>
@@ -445,7 +445,7 @@ export const ProsConsView: React.FC<ProsConsViewProps> = ({
                   value={newItemRationale}
                   onChange={(e) => setNewItemRationale(e.target.value)}
                   placeholder="Why does this matter?"
-                  className="w-full rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-2 text-sm text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:border-neutral-900 dark:focus:border-neutral-400"
+                  className="w-full rounded-xl border border-neutral-200 dark:border-white/15 bg-white dark:bg-slate-900/90 px-3 py-2 text-sm text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-slate-400 focus:outline-none focus:border-cyan-400 dark:focus:border-cyan-400"
                 />
               </div>
 
@@ -459,7 +459,7 @@ export const ProsConsView: React.FC<ProsConsViewProps> = ({
                     value={newItemMitigation}
                     onChange={(e) => setNewItemMitigation(e.target.value)}
                     placeholder="How could you hedge or solve this?"
-                    className="w-full rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-2 text-sm text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:border-neutral-900 dark:focus:border-neutral-400"
+                    className="w-full rounded-xl border border-neutral-200 dark:border-white/15 bg-white dark:bg-slate-900/90 px-3 py-2 text-sm text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-slate-400 focus:outline-none focus:border-cyan-400 dark:focus:border-cyan-400"
                   />
                 </div>
               )}

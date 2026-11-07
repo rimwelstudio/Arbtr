@@ -170,7 +170,7 @@ export const ComparisonTableView: React.FC<ComparisonTableViewProps> = ({
 
       {/* Main Comparison Table */}
       <div>
-        <div className="flex sm:hidden items-center justify-end gap-1 text-[11px] text-neutral-400 dark:text-neutral-500 mb-1.5 px-1">
+        <div className="flex sm:hidden items-center justify-end gap-1 text-[11px] text-neutral-400 dark:text-slate-400 mb-1.5 px-1">
           <span>Swipe horizontally to compare</span>
           <span>→</span>
         </div>
@@ -287,7 +287,7 @@ export const ComparisonTableView: React.FC<ComparisonTableViewProps> = ({
                                 }`}>
                                   {score}
                                 </span>
-                                <span className="text-xs text-neutral-400 dark:text-neutral-500">/ 10</span>
+                                <span className="text-xs text-neutral-400 dark:text-slate-400">/ 10</span>
                               </div>
 
                               {isLeadingForThisCriterion && (

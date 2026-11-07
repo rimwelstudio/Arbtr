@@ -338,7 +338,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
                     placeholder="Jane Doe"
-                    className="w-full pl-9 pr-3 py-2 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/60 text-sm text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                    className="w-full pl-9 pr-3 py-2 rounded-xl border border-neutral-300 dark:border-white/15 bg-neutral-50 dark:bg-slate-900/90 text-sm text-neutral-900 dark:text-white placeholder-neutral-400 dark:placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition-all"
                   />
                 </div>
               </div>
@@ -357,7 +357,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@example.com"
-                  className="w-full pl-9 pr-3 py-2 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/60 text-sm text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                  className="w-full pl-9 pr-3 py-2 rounded-xl border border-neutral-300 dark:border-white/15 bg-neutral-50 dark:bg-slate-900/90 text-sm text-neutral-900 dark:text-white placeholder-neutral-400 dark:placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition-all"
                 />
               </div>
             </div>
@@ -391,7 +391,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
                     minLength={6}
-                    className="w-full pl-9 pr-10 py-2 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/60 text-sm text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                    className="w-full pl-9 pr-10 py-2 rounded-xl border border-neutral-300 dark:border-white/15 bg-neutral-50 dark:bg-slate-900/90 text-sm text-neutral-900 dark:text-white placeholder-neutral-400 dark:placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition-all"
                   />
                   <button
                     type="button"

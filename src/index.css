@@ -2,6 +2,56 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+@layer base {
+  /* Global High-Contrast Base Typography Reset */
+  body {
+    @apply antialiased;
+  }
+
+  .dark {
+    color-scheme: dark;
+  }
+
+  .dark body {
+    background-color: #020617; /* bg-slate-950 */
+    color: #f1f5f9; /* text-slate-100 */
+  }
+
+  /* Form Inputs, Textareas, Selects & Option Contrast Hierarchy */
+  .dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="button"]):not([type="submit"]),
+  .dark textarea,
+  .dark select {
+    background-color: rgba(15, 23, 42, 0.9); /* bg-slate-900/90 */
+    color: #ffffff !important; /* text-white */
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+
+  .dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="button"]):not([type="submit"]):focus,
+  .dark textarea:focus,
+  .dark select:focus {
+    border-color: #22d3ee !important; /* focus:border-cyan-400 */
+    outline: none;
+  }
+
+  .dark input::placeholder,
+  .dark textarea::placeholder {
+    color: #94a3b8 !important; /* placeholder:text-slate-400 */
+    opacity: 1;
+  }
+
+  /* Dropdown Options explicit high-contrast dark styling */
+  select option,
+  .dark select option {
+    background-color: #0f172a !important; /* bg-slate-900 */
+    color: #ffffff !important; /* text-white */
+  }
+
+  /* Headings contrast safeguard in dark mode */
+  .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
+    color: #ffffff;
+  }
+}
+
 /* Mobile UI utilities */
 .no-scrollbar {
   -ms-overflow-style: none;

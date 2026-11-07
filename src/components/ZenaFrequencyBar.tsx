@@ -209,7 +209,7 @@ export const ZenaFrequencyBar: React.FC<ZenaFrequencyBarProps> = ({
       />
 
       {/* Subtle Micro HUD Status Overlay (Left & Right) */}
-      <div className="absolute inset-0 flex items-center justify-between px-3 text-[9px] font-mono tracking-wider uppercase text-neutral-400/80 dark:text-neutral-500/80 pointer-events-none">
+      <div className="absolute inset-0 flex items-center justify-between px-3 text-[9px] font-mono tracking-wider uppercase text-neutral-400/80 dark:text-slate-400/90 pointer-events-none">
         <div className="flex items-center gap-1.5">
           <span
             className={`inline-block h-1.5 w-1.5 rounded-full transition-all duration-200 ${

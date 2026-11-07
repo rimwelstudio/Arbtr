@@ -124,13 +124,13 @@ export const TranslationModal: React.FC<TranslationModalProps> = ({
               {t.translateModalSelectLang || 'Select Target Language'}
             </label>
             <div className="relative mb-3">
-              <Search className="absolute left-3 top-2.5 h-4 w-4 text-neutral-400 dark:text-neutral-500" />
+              <Search className="absolute left-3 top-2.5 h-4 w-4 text-neutral-400 dark:text-slate-400" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Filter supported languages..."
-                className="w-full rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 pl-9 pr-4 py-2 text-xs text-neutral-800 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:border-neutral-900 dark:focus:border-neutral-400 focus:outline-none"
+                className="w-full rounded-xl border border-neutral-200 dark:border-white/15 bg-white dark:bg-slate-900/90 pl-9 pr-4 py-2 text-xs text-neutral-800 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-slate-400 focus:border-cyan-400 dark:focus:border-cyan-400 focus:outline-none"
               />
             </div>
 
@@ -170,13 +170,13 @@ export const TranslationModal: React.FC<TranslationModalProps> = ({
             </label>
             <div className="flex items-center gap-2">
               <div className="relative flex-1">
-                <Globe className="absolute left-3 top-2.5 h-4 w-4 text-neutral-400 dark:text-neutral-500" />
+                <Globe className="absolute left-3 top-2.5 h-4 w-4 text-neutral-400 dark:text-slate-400" />
                 <input
                   type="text"
                   value={customLanguage}
                   onChange={(e) => setCustomLanguage(e.target.value)}
                   placeholder={t.translateModalCustomPlaceholder || 'e.g. Swahili, Hebrew, Greek, Bengali, Czech...'}
-                  className="w-full rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 pl-9 pr-3 py-2 text-xs text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:border-neutral-900 dark:focus:border-neutral-400 focus:outline-none"
+                  className="w-full rounded-xl border border-neutral-200 dark:border-white/15 bg-white dark:bg-slate-900/90 pl-9 pr-3 py-2 text-xs text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-slate-400 focus:border-cyan-400 dark:focus:border-cyan-400 focus:outline-none"
                 />
               </div>
               {customLanguage && (

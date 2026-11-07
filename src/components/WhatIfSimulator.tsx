@@ -120,7 +120,7 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({ decision, curr
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
             placeholder={t.simulatorInputPlaceholder || "Type custom scenario (e.g., What if I burn out after 6 months?)..."}
-            className="w-full rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-4 py-2.5 text-sm text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:border-neutral-900 dark:focus:border-neutral-400"
+            className="w-full rounded-xl border border-neutral-200 dark:border-white/15 bg-white dark:bg-slate-900/90 px-4 py-2.5 text-sm text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-slate-400 focus:outline-none focus:border-cyan-400 dark:focus:border-cyan-400"
           />
           <button
             type="submit"
@@ -153,7 +153,7 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({ decision, curr
         <div className="rounded-2xl border border-neutral-200/90 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-6 shadow-2xs space-y-5 animate-in fade-in duration-300">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-neutral-100 dark:border-neutral-800 pb-4">
             <div>
-              <span className="text-xs font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider">
+              <span className="text-xs font-semibold text-neutral-400 dark:text-slate-400 uppercase tracking-wider">
                 {t.tabSimulator || 'Scenario Result'}
               </span>
               <h4 className="text-lg font-bold text-neutral-900 dark:text-neutral-100 mt-0.5">

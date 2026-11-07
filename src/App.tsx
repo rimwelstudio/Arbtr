@@ -383,7 +383,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50/70 dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 font-sans flex flex-col antialiased transition-colors duration-150">
+    <div className="min-h-screen bg-neutral-50/70 dark:bg-slate-950 text-neutral-900 dark:text-slate-100 font-sans flex flex-col antialiased transition-colors duration-150">
       {/* Navbar */}
       <Navbar
         onNewDecision={handleNewDecision}
@@ -483,17 +483,17 @@ export default function App() {
                       <ArrowLeft className="h-3.5 w-3.5" />
                       {t.backToInput || 'Back to input'}
                     </button>
-                    <span className="text-neutral-300 dark:text-neutral-700">•</span>
-                    <span className="text-xs text-neutral-400 dark:text-neutral-500">
+                    <span className="text-neutral-300 dark:text-slate-400">•</span>
+                    <span className="text-xs text-neutral-500 dark:text-slate-300">
                       {t.analyzedOn || 'Analyzed'} {new Date(activeDecision.createdAt).toLocaleDateString()}
                     </span>
 
                     {/* Translation indicator and toggle */}
                     {activeDecision.translatedTo && (
                       <>
-                        <span className="text-neutral-300 dark:text-neutral-700">•</span>
-                        <span className="inline-flex items-center gap-1 rounded-full bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-100 dark:border-indigo-900/60 px-2.5 py-0.5 text-[11px] font-semibold text-indigo-700 dark:text-indigo-300">
-                          <Languages className="w-3 h-3 text-indigo-500" />
+                        <span className="text-neutral-300 dark:text-slate-400">•</span>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-100 dark:border-indigo-800/80 px-2.5 py-0.5 text-[11px] font-semibold text-indigo-700 dark:text-indigo-300">
+                          <Languages className="w-3 h-3 text-indigo-500 dark:text-indigo-400" />
                           {t.translatedBadge || 'Translated to'} {activeDecision.translatedTo}
                         </span>
                       </>
@@ -961,7 +961,7 @@ export default function App() {
             >
               {t.navAbout || 'About Arbitr'}
             </button>
-            <span className="text-neutral-400 dark:text-neutral-600 select-none">•</span>
+            <span className="text-neutral-400 dark:text-slate-400 select-none">•</span>
             <button
               id="footer-terms-btn"
               type="button"
@@ -970,7 +970,7 @@ export default function App() {
             >
               {t.navTerms || 'Terms & Conditions'}
             </button>
-            <span className="text-neutral-400 dark:text-neutral-600 select-none">•</span>
+            <span className="text-neutral-400 dark:text-slate-400 select-none">•</span>
             <button
               id="footer-privacy-btn"
               type="button"
@@ -979,9 +979,9 @@ export default function App() {
             >
               {t.navPrivacy || 'Privacy Policy'}
             </button>
-            <span className="text-neutral-400 dark:text-neutral-600 select-none">•</span>
+            <span className="text-neutral-400 dark:text-slate-400 select-none">•</span>
             <span className="font-mono text-neutral-700 dark:text-neutral-300 font-medium py-1 inline-flex items-center">@arbitrapp</span>
-            <span className="text-neutral-400 dark:text-neutral-600 hidden md:inline select-none">•</span>
+            <span className="text-neutral-400 dark:text-slate-400 hidden md:inline select-none">•</span>
             <span className="font-medium text-neutral-600 dark:text-neutral-300 hidden md:inline">{t.appTagline || 'Stop overthinking. Start deciding.'}</span>
           </div>
 

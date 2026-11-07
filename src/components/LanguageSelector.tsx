@@ -60,7 +60,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
               <Globe className="h-3 w-3 text-indigo-500 dark:text-indigo-400" />
               {t.appLanguage || 'App Language'}
             </span>
-            <span className="text-[10px] text-neutral-400 dark:text-neutral-500">{SUPPORTED_LANGUAGES.length} {t.languagesCount || 'languages'}</span>
+            <span className="text-[10px] text-neutral-400 dark:text-slate-400">{SUPPORTED_LANGUAGES.length} {t.languagesCount || 'languages'}</span>
           </div>
 
           <div className="p-1 mb-1">
@@ -69,7 +69,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={t.searchLanguagePlaceholder || 'Search language...'}
-              className="w-full rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-2.5 py-1 text-xs text-neutral-800 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:border-neutral-900 dark:focus:border-neutral-400 focus:outline-none"
+              className="w-full rounded-lg border border-neutral-200 dark:border-white/15 bg-white dark:bg-slate-900/90 px-2.5 py-1 text-xs text-neutral-800 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-slate-400 focus:border-cyan-400 dark:focus:border-cyan-400 focus:outline-none"
               autoFocus
             />
           </div>
@@ -95,7 +95,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
                   <span className="flex items-center gap-2 truncate">
                     <span>{lang.flag}</span>
                     <span className="truncate">{lang.nativeName}</span>
-                    <span className={`text-[10px] ${isSelected ? 'text-neutral-300 dark:text-neutral-600' : 'text-neutral-400 dark:text-neutral-500'}`}>
+                    <span className={`text-[10px] ${isSelected ? 'text-neutral-300 dark:text-neutral-700' : 'text-neutral-400 dark:text-slate-400'}`}>
                       ({lang.name})
                     </span>
                   </span>

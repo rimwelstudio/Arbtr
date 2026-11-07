@@ -182,7 +182,7 @@ export const HistoryDrawer: React.FC<HistoryDrawerProps> = ({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={t.historySearchPlaceholder || 'Search past decisions by title or winner...'}
-                className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white placeholder-neutral-400 dark:placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm rounded-xl border border-neutral-200 dark:border-white/15 bg-neutral-50 dark:bg-slate-900/90 text-neutral-900 dark:text-white placeholder-neutral-400 dark:placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400"
               />
               {searchQuery && (
                 <button
@@ -207,7 +207,7 @@ export const HistoryDrawer: React.FC<HistoryDrawerProps> = ({
             <button 
               type="button" 
               onClick={() => setDeletedToast(null)}
-              className="text-neutral-400 dark:text-neutral-600 hover:text-white dark:hover:text-neutral-900 text-xs ml-2 cursor-pointer p-0.5"
+              className="text-neutral-400 dark:text-neutral-700 hover:text-white dark:hover:text-neutral-950 text-xs ml-2 cursor-pointer p-0.5"
             >
               ✕
             </button>

@@ -276,7 +276,7 @@ export const DecisionForm: React.FC<DecisionFormProps> = ({
       <div className="mb-6">
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider flex items-center gap-1.5">
-            <Compass className="w-3.5 h-3.5 text-neutral-400 dark:text-neutral-500" />
+            <Compass className="w-3.5 h-3.5 text-neutral-400 dark:text-slate-400" />
             {t.quickPresetsTitle || 'Quick Presets / Inspiration:'}
           </span>
           {onOpenTemplatesModal && (
@@ -304,7 +304,7 @@ export const DecisionForm: React.FC<DecisionFormProps> = ({
                     : 'border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-neutral-700 dark:text-neutral-300 hover:border-neutral-300 dark:hover:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800'
                 }`}
               >
-                <span className="text-neutral-400 dark:text-neutral-500 mr-1.5">[{preset.category}]</span>
+                <span className="text-neutral-400 dark:text-slate-400 mr-1.5">[{preset.category}]</span>
                 {preset.title.length > 38 ? preset.title.slice(0, 38) + '...' : preset.title}
                 {isCurrentActive && <span className="ml-1.5 text-indigo-600 dark:text-indigo-400 font-bold">✓</span>}
               </button>
@@ -327,7 +327,7 @@ export const DecisionForm: React.FC<DecisionFormProps> = ({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder={t.fieldTitlePlaceholder || 'e.g., Should I take the new job in Seattle or stay at my current role?'}
-            className="w-full rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-4 py-3 text-base text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:border-neutral-900 dark:focus:border-neutral-400 focus:outline-none focus:ring-1 focus:ring-neutral-900 dark:focus:ring-neutral-400 transition-all"
+            className="w-full rounded-xl border border-neutral-200 dark:border-white/15 bg-white dark:bg-slate-900/90 px-4 py-3 text-base text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-slate-400 focus:border-cyan-400 dark:focus:border-cyan-400 focus:outline-none focus:ring-1 focus:ring-cyan-400 dark:focus:ring-cyan-400 transition-all"
           />
         </div>
 
@@ -396,7 +396,7 @@ export const DecisionForm: React.FC<DecisionFormProps> = ({
                   value={option}
                   onChange={(e) => handleOptionChange(idx, e.target.value)}
                   placeholder={`Option ${idx + 1} title`}
-                  className="w-full rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3.5 py-2 text-sm text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:border-neutral-900 dark:focus:border-neutral-400 focus:outline-none focus:ring-1 focus:ring-neutral-900 dark:focus:ring-neutral-400 transition-all"
+                  className="w-full rounded-lg border border-neutral-200 dark:border-white/15 bg-white dark:bg-slate-900/90 px-3.5 py-2 text-sm text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-slate-400 focus:border-cyan-400 dark:focus:border-cyan-400 focus:outline-none focus:ring-1 focus:ring-cyan-400 dark:focus:ring-cyan-400 transition-all"
                 />
                 {mode === 'multi' && options.length > 2 && (
                   <button
@@ -430,7 +430,7 @@ export const DecisionForm: React.FC<DecisionFormProps> = ({
           {/* Active Selected Priorities Strip */}
           <div className="mb-3">
             <div className="flex items-center justify-between text-xs text-neutral-500 dark:text-neutral-400 mb-1.5">
-              <span className="font-semibold uppercase tracking-wider text-[11px] text-neutral-400 dark:text-neutral-500">
+              <span className="font-semibold uppercase tracking-wider text-[11px] text-neutral-400 dark:text-slate-400">
                 {t.activePriorities || 'Active Priorities'} ({priorities.length} {t.activePrioritiesCount || 'active'})
               </span>
               {priorities.length > 0 && (
@@ -445,7 +445,7 @@ export const DecisionForm: React.FC<DecisionFormProps> = ({
             </div>
             <div className="flex flex-wrap items-center gap-1.5 min-h-[44px] p-2.5 rounded-xl border border-neutral-200/90 dark:border-neutral-800 bg-neutral-50/70 dark:bg-neutral-900/60">
               {priorities.length === 0 ? (
-                <span className="text-xs text-neutral-400 dark:text-neutral-500 italic px-1">
+                <span className="text-xs text-neutral-400 dark:text-slate-400 italic px-1">
                   {t.noPrioritiesSelected || 'No priorities selected yet. Pick from the suggestions below or search/type custom values.'}
                 </span>
               ) : (
@@ -468,7 +468,7 @@ export const DecisionForm: React.FC<DecisionFormProps> = ({
                       <button
                         type="button"
                         onClick={() => removePriority(p)}
-                        className="p-0.5 rounded-full hover:bg-neutral-800 dark:hover:bg-neutral-200 text-neutral-300 dark:text-neutral-600 hover:text-white dark:hover:text-neutral-900 transition-colors cursor-pointer"
+                        className="p-0.5 rounded-full hover:bg-neutral-800 dark:hover:bg-neutral-200 text-neutral-300 dark:text-slate-400 hover:text-white dark:hover:text-neutral-900 transition-colors cursor-pointer"
                         title={`Remove ${p}`}
                         aria-label={`Remove ${p}`}
                       >
@@ -492,7 +492,7 @@ export const DecisionForm: React.FC<DecisionFormProps> = ({
                 onChange={(e) => setCustomPriorityInput(e.target.value)}
                 onKeyDown={(e) => handleAddCustomPriority(e)}
                 placeholder={t.priorityPlaceholder || "Search values or type custom criteria (e.g., Short commute, Kid's schools, High equity)..."}
-                className="w-full pl-9 pr-24 py-2.5 text-xs sm:text-sm rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 focus:outline-hidden transition-all shadow-2xs"
+                className="w-full pl-9 pr-24 py-2.5 text-xs sm:text-sm rounded-xl border border-neutral-200 dark:border-white/15 bg-white dark:bg-slate-900/90 text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-slate-400 focus:border-cyan-400 dark:focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20 focus:outline-hidden transition-all shadow-2xs"
               />
               <div className="absolute right-1.5 flex items-center gap-1">
                 {customPriorityInput && (
@@ -515,7 +515,7 @@ export const DecisionForm: React.FC<DecisionFormProps> = ({
                   className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                     customPriorityInput.trim()
                       ? 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-2xs cursor-pointer'
-                      : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-400 dark:text-neutral-600 cursor-not-allowed'
+                      : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-400 dark:text-slate-400 cursor-not-allowed'
                   }`}
                 >
                   <span className="flex items-center gap-1">
@@ -578,7 +578,7 @@ export const DecisionForm: React.FC<DecisionFormProps> = ({
                 {/* Section 2: Available suggestions matching search */}
                 {matchingAvailable.length > 0 && (
                   <div>
-                    <div className="text-[10px] uppercase font-bold tracking-wider text-neutral-400 dark:text-neutral-500 px-1 py-0.5">
+                    <div className="text-[10px] uppercase font-bold tracking-wider text-neutral-400 dark:text-slate-400 px-1 py-0.5">
                       {t.priorityAvailableSuggestions || 'Available Suggestions'} ({matchingAvailable.length}):
                     </div>
                     <div className="flex flex-wrap gap-1.5 p-1">
@@ -670,7 +670,7 @@ export const DecisionForm: React.FC<DecisionFormProps> = ({
                 value={context}
                 onChange={(e) => setContext(e.target.value)}
                 placeholder={t.fieldContextPlaceholder || 'Include key numbers (salaries, savings, commute time), emotional stakes, spouse/family concerns, or timelines...'}
-                className="w-full rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-3 text-sm text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:border-neutral-900 dark:focus:border-neutral-400 focus:outline-none focus:ring-1 focus:ring-neutral-900 dark:focus:ring-neutral-400 transition-all"
+                className="w-full rounded-xl border border-neutral-200 dark:border-white/15 bg-white dark:bg-slate-900/90 p-3 text-sm text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-slate-400 focus:border-cyan-400 dark:focus:border-cyan-400 focus:outline-none focus:ring-1 focus:ring-cyan-400 dark:focus:ring-cyan-400 transition-all"
               />
             </div>
           )}
@@ -693,11 +693,11 @@ export const DecisionForm: React.FC<DecisionFormProps> = ({
               id="form-target-language"
               value={targetLang}
               onChange={(e) => setTargetLang(e.target.value)}
-              className="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-1.5 text-xs font-medium text-neutral-800 dark:text-neutral-200 focus:border-neutral-900 dark:focus:border-neutral-400 focus:outline-none"
+              className="rounded-xl border border-neutral-200 dark:border-white/15 bg-white dark:bg-slate-900/90 px-3 py-1.5 text-xs font-medium text-neutral-800 dark:text-white focus:border-cyan-400 dark:focus:border-cyan-400 focus:outline-none"
             >
-              <option value="auto">🌐 {t.targetLanguageAuto || 'Auto-detect from input'}</option>
+              <option value="auto" className="bg-slate-900 text-white">🌐 {t.targetLanguageAuto || 'Auto-detect from input'}</option>
               {SUPPORTED_LANGUAGES.map((l) => (
-                <option key={l.code} value={l.code}>
+                <option key={l.code} value={l.code} className="bg-slate-900 text-white">
                   {l.flag} {l.nativeName} ({l.name})
                 </option>
               ))}
