@@ -108,11 +108,18 @@ export function usePWAInstall(): PWAInstallState {
       setBrowserName('Other');
     }
 
+    // Check if an existing deferred prompt was already captured prior to hook mount
+    const initialPrompt = globalDeferredPrompt || (window as any).__pwaDeferredPrompt || null;
+    if (initialPrompt) {
+      setDeferredPrompt(initialPrompt);
+    }
+
     // Listen for Chromium native beforeinstallprompt
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       const promptEvent = e as BeforeInstallPromptEvent;
       globalDeferredPrompt = promptEvent;
+      (window as any).__pwaDeferredPrompt = promptEvent;
       setDeferredPrompt(promptEvent);
     };
 
@@ -120,6 +127,7 @@ export function usePWAInstall(): PWAInstallState {
       const custom = e as CustomEvent<BeforeInstallPromptEvent>;
       if (custom.detail) {
         globalDeferredPrompt = custom.detail;
+        (window as any).__pwaDeferredPrompt = custom.detail;
         setDeferredPrompt(custom.detail);
       }
     };

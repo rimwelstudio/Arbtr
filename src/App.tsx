@@ -39,6 +39,7 @@ import { TermsModal } from './components/TermsModal';
 import { PrivacyModal } from './components/PrivacyModal';
 import { WakeWordBanner } from './components/WakeWordBanner';
 import { ZenaVoiceWidget } from './components/ZenaVoiceWidget';
+import { PWAInstallBanner } from './components/PWAInstallBanner';
 import { OfflineIndicator } from './components/OfflineIndicator';
 import { useWakeWord } from './hooks/useWakeWord';
 import { useAuth } from './contexts/AuthContext';
@@ -980,7 +981,7 @@ export default function App() {
               {t.navPrivacy || 'Privacy Policy'}
             </button>
             <span className="text-neutral-400 dark:text-slate-400 select-none">•</span>
-            <span className="font-mono text-neutral-700 dark:text-neutral-300 font-medium py-1 inline-flex items-center">@arbitrapp</span>
+            <span className="font-mono text-neutral-700 dark:text-neutral-300 font-medium py-1 inline-flex items-center">@arbitrapps</span>
             <span className="text-neutral-400 dark:text-slate-400 hidden md:inline select-none">•</span>
             <span className="font-medium text-neutral-600 dark:text-neutral-300 hidden md:inline">{t.appTagline || 'Stop overthinking. Start deciding.'}</span>
           </div>
@@ -991,14 +992,14 @@ export default function App() {
               type="button"
               onClick={() => setShowAboutModal(true)}
               className="inline-flex items-center gap-2 px-3.5 py-1.5 min-h-[38px] rounded-full bg-neutral-50 dark:bg-neutral-800/80 hover:bg-neutral-100 dark:hover:bg-neutral-700 border border-neutral-200 dark:border-neutral-700 text-xs transition-all shadow-xs group cursor-pointer focus:outline-none focus:ring-2 focus:ring-cyan-500/40"
-              title="Arbitr • arbitrapp.com — View Architecture & Domain Status"
+              title="Arbitr • arbitrapps.com — View Architecture & Domain Status"
             >
               <span className="relative flex h-2 w-2 shrink-0">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
               </span>
               <span className="font-mono font-semibold text-cyan-600 dark:text-cyan-300 group-hover:text-cyan-700 dark:group-hover:text-cyan-200">
-                arbitrapp.com
+                arbitrapps.com
               </span>
               <span className="text-[10px] uppercase font-mono tracking-wider font-semibold px-1.5 py-0.5 rounded bg-cyan-100/70 dark:bg-cyan-950/80 text-cyan-800 dark:text-cyan-300 border border-cyan-200/60 dark:border-cyan-800/60">
                 Live
@@ -1043,6 +1044,9 @@ export default function App() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* In-App PWA Install Banner */}
+      <PWAInstallBanner />
 
       {/* Connectivity & Offline Notification */}
       <OfflineIndicator />

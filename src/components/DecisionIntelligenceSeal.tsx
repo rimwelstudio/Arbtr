@@ -69,7 +69,7 @@ export const DecisionIntelligenceSeal: React.FC<DecisionIntelligenceSealProps> =
   };
 
   const handleCopyBadge = () => {
-    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://arbitrapp.com';
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://arbitrapps.com';
     navigator.clipboard.writeText(`![Arbitr Decision Intelligence Seal](${origin}/arbitr-banner.svg)`);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);

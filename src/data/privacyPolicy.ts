@@ -10,15 +10,15 @@ export interface PrivacySection {
 
 export const PRIVACY_METADATA = {
   appName: 'Arbitr',
-  website: 'https://arbitrapp.com',
-  domain: 'arbitrapp.com',
-  handle: '@arbitrapp',
+  website: 'https://arbitrapps.com',
+  domain: 'arbitrapps.com',
+  handle: '@arbitrapps',
   effectiveDate: 'September 14, 2026',
   lastUpdated: 'September 14, 2026',
   version: '2.4',
-  dpoEmail: 'privacy@arbitrapp.com',
-  supportEmail: 'support@arbitrapp.com',
-  legalEmail: 'legal@arbitrapp.com',
+  dpoEmail: 'privacy@arbitrapps.com',
+  supportEmail: 'support@arbitrapps.com',
+  legalEmail: 'legal@arbitrapps.com',
 };
 
 export const PRIVACY_KEY_HIGHLIGHTS = [
@@ -62,7 +62,7 @@ export const PRIVACY_SECTIONS: PrivacySection[] = [
     summary:
       'Arbitr respects your privacy and is committed to protecting the confidential scenarios, criteria, and personal evaluations you enter.',
     paragraphs: [
-      'This Privacy Policy describes how Arbitr Decision Intelligence ("Arbitr", "we", "us", or "our") collects, protects, processes, and handles information when you visit or use the Arbitr web application, mobile interfaces, voice features, and services hosted at arbitrapp.com (the "Service").',
+      'This Privacy Policy describes how Arbitr Decision Intelligence ("Arbitr", "we", "us", or "our") collects, protects, processes, and handles information when you visit or use the Arbitr web application, mobile interfaces, voice features, and services hosted at arbitrapps.com (the "Service").',
       'By accessing or using Arbitr, you acknowledge that you have read and understood this Privacy Policy. If you do not agree with our data practices as described herein, please refrain from using the Service or creating an account.',
       'We design our systems under the foundational principle of data minimization: we only process data that is strictly necessary to calculate decision matrices, detect cognitive biases, provide AI-assisted insights, and sync your work across sessions.',
     ],
@@ -185,7 +185,7 @@ export const PRIVACY_SECTIONS: PrivacySection[] = [
     paragraphs: [
       'We retain your account profile and synced decision scenarios for as long as your account remains active or as needed to provide you with the Service.',
       'Immediate Erasure: When you delete a scenario from your history, the corresponding document in Firestore is permanently deleted from our live cluster. Temporary backup snapshots are purged pursuant to standard rolling cloud retention schedules (typically within 30 days).',
-      'Account Termination: You may request account deletion at any time via the application settings or by emailing privacy@arbitrapp.com.',
+      'Account Termination: You may request account deletion at any time via the application settings or by emailing privacy@arbitrapps.com.',
     ],
   },
   {
@@ -196,7 +196,7 @@ export const PRIVACY_SECTIONS: PrivacySection[] = [
       'Arbitr is not intended for or marketed to children under 13 (or under 16 in the European Economic Area).',
     paragraphs: [
       'The Service is designed for adult cognitive deliberation, professional decisions, and students of eligible age. We do not knowingly collect or solicit personal information from children under 13 (or under 16 in the EEA/UK).',
-      'If we learn that we have inadvertently collected personal data from a child below the minimum statutory age without verifiable parental consent, we will promptly delete that information from our servers. Parents or guardians who believe their child has provided us with personal information may contact privacy@arbitrapp.com.',
+      'If we learn that we have inadvertently collected personal data from a child below the minimum statutory age without verifiable parental consent, we will promptly delete that information from our servers. Parents or guardians who believe their child has provided us with personal information may contact privacy@arbitrapps.com.',
     ],
   },
   {
@@ -218,7 +218,7 @@ export const PRIVACY_SECTIONS: PrivacySection[] = [
       'For privacy inquiries, data export requests, or regulatory questions, reach out directly to our Data Protection team.',
     paragraphs: [
       'If you have questions, feedback, or concerns regarding this Privacy Policy or our data handling practices, please contact our privacy compliance team:',
-      'Arbitr Decision Intelligence\nAttn: Privacy Officer & Legal Affairs\nWebsite: arbitrapp.com\nEmail: privacy@arbitrapp.com\nLegal Department: legal@arbitrapp.com',
+      'Arbitr Decision Intelligence\nAttn: Privacy Officer & Legal Affairs\nWebsite: arbitrapps.com\nEmail: privacy@arbitrapps.com\nLegal Department: legal@arbitrapps.com',
     ],
   },
 ];

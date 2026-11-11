@@ -114,7 +114,7 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
                   {t.welcomeIntroBadge || 'Welcome to Arbitr'}
                 </span>
                 <span className="rounded-full bg-white/10 px-2 py-0.5 text-[11px] font-mono text-cyan-200">
-                  arbitrapp.com • @arbitrapp
+                  arbitrapps.com • @arbitrapps
                 </span>
               </div>
               <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white flex items-center gap-2 flex-wrap">

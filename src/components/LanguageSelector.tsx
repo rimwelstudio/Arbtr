@@ -41,13 +41,13 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
         id="global-language-selector-btn"
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200/90 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2.5 py-1.5 text-xs font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-600 transition-all shadow-2xs"
+        className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200/90 dark:border-white/15 bg-white dark:bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-neutral-800 dark:text-white hover:bg-neutral-50 dark:hover:bg-slate-800 hover:border-neutral-300 dark:hover:border-white/30 transition-all shadow-2xs"
         title="Change application language"
       >
         <span className="text-sm">{activeOption.flag}</span>
-        <span className="hidden sm:inline font-semibold text-neutral-800 dark:text-neutral-200">{activeOption.nativeName}</span>
-        <span className="sm:hidden uppercase font-semibold text-[11px] text-neutral-800 dark:text-neutral-200">{activeOption.code}</span>
-        <ChevronDown className={`h-3 w-3 text-neutral-400 dark:text-neutral-400 transition-transform duration-150 ${isOpen ? 'rotate-180' : ''}`} />
+        <span className="hidden sm:inline font-semibold text-neutral-900 dark:text-white">{activeOption.nativeName}</span>
+        <span className="sm:hidden uppercase font-semibold text-[11px] text-neutral-900 dark:text-white">{activeOption.code}</span>
+        <ChevronDown className={`h-3 w-3 text-neutral-500 dark:text-slate-300 transition-transform duration-150 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {isOpen && (

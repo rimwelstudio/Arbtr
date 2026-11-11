@@ -136,15 +136,15 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({
         type="button"
         onClick={handleInstallClick}
         disabled={installing}
-        className={`inline-flex items-center gap-2 rounded-xl px-3 py-1.5 text-xs sm:text-sm font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-50/90 dark:bg-indigo-950/60 border border-indigo-200/90 dark:border-indigo-800/80 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 transition-all cursor-pointer min-h-[38px] shadow-2xs group ${className}`}
+        className={`inline-flex items-center gap-2 rounded-xl px-3 py-1.5 text-xs sm:text-sm font-bold text-indigo-700 dark:text-indigo-200 bg-indigo-50/90 dark:bg-indigo-950/70 border border-indigo-200/90 dark:border-indigo-600/50 hover:bg-indigo-100 dark:hover:bg-indigo-900/80 transition-all cursor-pointer min-h-[38px] shadow-2xs group ${className}`}
         title={isIOS ? 'Install Arbitr on iOS Safari' : 'Install Arbitr as a standalone desktop/mobile app'}
         aria-label="Install Arbitr PWA"
       >
         <div className="relative flex items-center justify-center">
-          <Download className="h-4 w-4 text-indigo-600 dark:text-indigo-400 group-hover:translate-y-0.5 transition-transform" />
+          <Download className="h-4 w-4 text-indigo-600 dark:text-indigo-300 group-hover:translate-y-0.5 transition-transform" />
         </div>
         <span>Install App</span>
-        <span className="hidden lg:inline-block text-[10px] font-mono uppercase tracking-wider px-1.5 py-0.2 rounded bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200">
+        <span className="hidden lg:inline-block text-[10px] font-mono uppercase tracking-wider px-1.5 py-0.2 rounded bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-100 font-bold">
           PWA
         </span>
       </button>

@@ -121,10 +121,10 @@ export const AboutModal: React.FC<AboutModalProps> = ({
                 </span>
                 <div
                   className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-neutral-100 dark:bg-neutral-800 px-2.5 py-0.5 text-xs font-mono text-cyan-600 dark:text-cyan-300 border border-neutral-200 dark:border-neutral-700"
-                  title="Official brand domain: arbitrapp.com"
+                  title="Official brand domain: arbitrapps.com"
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 inline-block"></span>
-                  <span>arbitrapp.com</span>
+                  <span>arbitrapps.com</span>
                 </div>
               </div>
               <p className="text-[11px] sm:text-xs text-neutral-600 dark:text-neutral-300 truncate max-w-[200px] xs:max-w-xs sm:max-w-md mt-0.5">
@@ -266,7 +266,7 @@ export const AboutModal: React.FC<AboutModalProps> = ({
                 </div>
 
                 <p className="text-xs text-neutral-700 dark:text-neutral-200 leading-relaxed">
-                  <strong>Active Host Environment:</strong> You are accessing Arbitr directly on this deployment. If you encountered an issue trying to access the external <code className="px-1.5 py-0.5 rounded bg-white dark:bg-neutral-800 font-mono text-neutral-900 dark:text-neutral-100 border border-neutral-200 dark:border-neutral-700 font-semibold">arbitrapp.com</code> URL, that domain is the trademark brand identity for the project. The complete copilot, AI engines, and voice arbiter are running live right here.
+                  <strong>Active Host Environment:</strong> You are accessing Arbitr directly on this deployment. If you encountered an issue trying to access the external <code className="px-1.5 py-0.5 rounded bg-white dark:bg-neutral-800 font-mono text-neutral-900 dark:text-neutral-100 border border-neutral-200 dark:border-neutral-700 font-semibold">arbitrapps.com</code> URL, that domain is the trademark brand identity for the project. The complete copilot, AI engines, and voice arbiter are running live right here.
                 </p>
 
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 p-2.5 rounded-xl bg-white dark:bg-neutral-900 border border-indigo-200/80 dark:border-indigo-800/60">
@@ -302,7 +302,7 @@ export const AboutModal: React.FC<AboutModalProps> = ({
                 </div>
 
                 <div className="text-[11px] text-neutral-600 dark:text-neutral-300 leading-relaxed">
-                  <strong>Custom Domain Setup:</strong> To point <code className="font-mono font-semibold text-neutral-800 dark:text-neutral-200">arbitrapp.com</code> directly to this instance, add a DNS <span className="font-semibold text-neutral-800 dark:text-neutral-200">CNAME</span> or <span className="font-semibold text-neutral-800 dark:text-neutral-200">A</span> record in your domain registrar pointing to your Cloud Run or container deployment IP.
+                  <strong>Custom Domain Setup:</strong> To point <code className="font-mono font-semibold text-neutral-800 dark:text-neutral-200">arbitrapps.com</code> directly to this instance, add a DNS <span className="font-semibold text-neutral-800 dark:text-neutral-200">CNAME</span> or <span className="font-semibold text-neutral-800 dark:text-neutral-200">A</span> record in your domain registrar pointing to your Cloud Run or container deployment IP.
                 </div>
               </div>
 
@@ -747,10 +747,10 @@ export const AboutModal: React.FC<AboutModalProps> = ({
             <span className="font-semibold text-neutral-800 dark:text-neutral-200">Arbitr Decision Engine</span>
             <span>•</span>
             <span className="font-mono text-cyan-600 dark:text-cyan-300 font-semibold inline-flex items-center gap-1">
-              <span>arbitrapp.com</span>
+              <span>arbitrapps.com</span>
             </span>
             <span>•</span>
-            <span className="font-mono text-neutral-600 dark:text-neutral-400">@arbitrapp</span>
+            <span className="font-mono text-neutral-600 dark:text-neutral-400">@arbitrapps</span>
             <span>•</span>
             <span className="text-neutral-600 dark:text-neutral-400">v2.5</span>
             {onOpenTerms && (
