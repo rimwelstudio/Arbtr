@@ -49,6 +49,7 @@ interface ZenaVoiceWidgetProps {
   isOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
   onOpenLiveModal?: () => void;
+  isLiveSessionActive?: boolean;
 }
 
 // Quick action deliberation prompts calibrated for Arbitr
@@ -150,6 +151,7 @@ export const ZenaVoiceWidget: React.FC<ZenaVoiceWidgetProps> = ({
   isOpen: propIsOpen,
   onOpenChange,
   onOpenLiveModal,
+  isLiveSessionActive = false,
 }) => {
   const t = getTranslation(currentLanguage);
 
@@ -625,6 +627,19 @@ export const ZenaVoiceWidget: React.FC<ZenaVoiceWidgetProps> = ({
     }
   }, [stopWaveAnimation, status]);
 
+  // Close ZENA sheet on Escape key press
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        stopListening();
+        setIsOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, stopListening, setIsOpen]);
+
   // Toggle Mic
   const handleToggleMic = () => {
     unlockAudioContext();
@@ -886,32 +901,38 @@ export const ZenaVoiceWidget: React.FC<ZenaVoiceWidgetProps> = ({
   return (
     <>
       {/* 1. DRAGGABLE & FLOATING AVATAR WIDGET (Mobile touch draggable & desktop repositionable) */}
-      <div
-        ref={containerRef}
-        id="zena-floating-container"
-        className={`fixed z-50 items-center gap-2.5 pointer-events-auto select-none ${
-          position ? '' : 'bottom-6 right-6'
-        } ${isOpen ? 'hidden sm:flex' : 'flex'}`}
-        style={{
-          ...(position
-            ? {
-                left: `${position.x}px`,
-                top: `${position.y}px`,
-                bottom: 'auto',
-                right: 'auto',
-              }
-            : {
-                paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom, 0px))',
-                paddingRight: 'max(0.5rem, env(safe-area-inset-right, 0px))',
-              }),
-          touchAction: 'none',
-        }}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        onTouchCancel={handleTouchCancel}
-        onMouseDown={handleMouseDown}
-      >
+      <AnimatePresence>
+        {!isOpen && !isLiveSessionActive && (
+          <motion.div
+            ref={containerRef}
+            id="zena-floating-container"
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.5 }}
+            transition={{ duration: 0.22, ease: 'easeOut' }}
+            className={`fixed z-50 flex items-center gap-2.5 pointer-events-auto select-none ${
+              position ? '' : 'bottom-6 right-6'
+            }`}
+            style={{
+              ...(position
+                ? {
+                    left: `${position.x}px`,
+                    top: `${position.y}px`,
+                    bottom: 'auto',
+                    right: 'auto',
+                  }
+                : {
+                    paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom, 0px))',
+                    paddingRight: 'max(0.5rem, env(safe-area-inset-right, 0px))',
+                  }),
+              touchAction: 'none',
+            }}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            onTouchCancel={handleTouchCancel}
+            onMouseDown={handleMouseDown}
+          >
         {/* Drag Active Tooltip Hint */}
         {isDragging && (
           <div
@@ -1070,28 +1091,38 @@ export const ZenaVoiceWidget: React.FC<ZenaVoiceWidgetProps> = ({
             </span>
           </motion.button>
         </div>
-      </div>
+      </motion.div>
+    )}
+  </AnimatePresence>
 
-      {/* 2. MOBILE BACKDROP OVERLAY (Dismisses bottom sheet on deliberate mobile tap) */}
-      {isOpen && !isMinimized && (
-        <div
-          className="fixed inset-0 bg-neutral-950/60 backdrop-blur-xs z-40 sm:hidden transition-opacity"
-          onClick={() => {
-            // Guard against synthetic delayed touch ghost-clicks from immediately dismissing the sheet
-            if (Date.now() - lastToggleTimeRef.current < 450) {
-              return;
-            }
-            stopListening();
-            setIsOpen(false);
-          }}
-          aria-hidden="true"
-        />
-      )}
+      {/* 2. BACKDROP OVERLAY (Dismisses sheet/drawer on deliberate mobile tap or desktop click outside) */}
+      <AnimatePresence>
+        {isOpen && !isMinimized && (
+          <motion.div
+            id="zena-backdrop-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 bg-neutral-950/60 sm:bg-neutral-950/30 backdrop-blur-xs z-40 transition-opacity cursor-pointer"
+            onClick={() => {
+              // Guard against synthetic delayed touch ghost-clicks from immediately dismissing the sheet
+              if (Date.now() - lastToggleTimeRef.current < 450) {
+                return;
+              }
+              stopListening();
+              setIsOpen(false);
+            }}
+            aria-label="Close ZENA modal"
+          />
+        )}
+      </AnimatePresence>
 
       {/* 3. SLEEK GLASSMORPHIC MODAL SHEET */}
       {isOpen && (
         <div
           id="zena-modal-sheet"
+          onClick={(e) => e.stopPropagation()}
           className={`fixed z-50 transition-all duration-300 ${
             isMinimized
               ? 'bottom-20 right-4 sm:bottom-24 sm:right-6 w-80 rounded-2xl border border-neutral-200/90 dark:border-neutral-800 bg-white/95 dark:bg-neutral-900/95 shadow-2xl p-3'
@@ -1225,49 +1256,73 @@ export const ZenaVoiceWidget: React.FC<ZenaVoiceWidgetProps> = ({
                 </button>
               )}
 
-              {/* Minimize (Desktop/Tablet) */}
+              {/* Minimize / Expand Button */}
               <button
                 type="button"
+                id="zena-modal-minimize-btn"
                 onClick={() => setIsMinimized((prev) => !prev)}
-                className="hidden sm:flex rounded-lg p-2 text-neutral-600 hover:text-neutral-950 dark:text-neutral-300 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer min-h-[36px] min-w-[36px] items-center justify-center"
-                title={isMinimized ? 'Expand window' : 'Minimize window'}
-                aria-label="Minimize"
+                className="flex items-center gap-1 rounded-xl px-2.5 py-1.5 text-neutral-600 hover:text-neutral-950 dark:text-neutral-300 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer min-h-[36px] font-semibold text-xs border border-transparent hover:border-neutral-200 dark:hover:border-neutral-700"
+                title={isMinimized ? 'Expand ZENA window' : 'Minimize ZENA window'}
+                aria-label={isMinimized ? 'Expand ZENA' : 'Minimize ZENA'}
               >
-                <Minimize2 className="h-4 w-4" />
+                {isMinimized ? <Maximize2 className="h-4 w-4" /> : <Minimize2 className="h-4 w-4" />}
+                <span className="hidden sm:inline">{isMinimized ? 'Expand' : 'Minimize'}</span>
               </button>
 
-              {/* Close Button */}
+              {/* Close Button (✕) */}
               <button
                 type="button"
+                id="zena-modal-close-btn"
                 onClick={() => {
                   stopListening();
                   setIsOpen(false);
+                  setIsMinimized(false);
                 }}
-                className="rounded-lg p-2 text-neutral-600 hover:text-neutral-950 dark:text-neutral-300 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer min-h-[36px] min-w-[36px] flex items-center justify-center"
-                title="Close ZENA widget"
-                aria-label="Close"
+                className="flex items-center gap-1 rounded-xl px-2.5 py-1.5 text-neutral-600 hover:text-rose-600 dark:text-neutral-300 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer min-h-[36px] font-bold text-xs border border-transparent hover:border-rose-200 dark:hover:border-rose-800/60"
+                title="Close ZENA (restore floating referee)"
+                aria-label="Close ZENA"
               >
-                <X className="h-4 w-4" />
+                <X className="h-4 w-4 stroke-[2.5]" />
+                <span className="hidden sm:inline">Close</span>
               </button>
             </div>
           </div>
 
           {/* Minimized View Header Pill */}
           {isMinimized ? (
-            <div className="flex items-center justify-between p-2">
+            <div className="flex items-center justify-between p-2.5">
               <div className="flex items-center gap-2">
                 <span className="relative flex h-2 w-2">
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500 animate-pulse" />
                 </span>
-                <span className="text-xs font-semibold text-neutral-900 dark:text-neutral-100">ZENA Mini Bar</span>
+                <span className="text-xs font-semibold text-neutral-900 dark:text-neutral-100">ZENA Ref (Minimized)</span>
               </div>
-              <button
-                type="button"
-                onClick={() => setIsMinimized(false)}
-                className="text-xs text-cyan-600 dark:text-cyan-400 font-bold hover:underline cursor-pointer"
-              >
-                Restore
-              </button>
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  id="zena-minibar-restore-btn"
+                  onClick={() => setIsMinimized(false)}
+                  className="text-xs text-cyan-600 dark:text-cyan-400 font-bold hover:underline cursor-pointer flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-cyan-50 dark:hover:bg-cyan-950/40"
+                  aria-label="Restore ZENA"
+                >
+                  <Maximize2 className="h-3.5 w-3.5" />
+                  <span>Restore</span>
+                </button>
+                <button
+                  type="button"
+                  id="zena-minibar-close-btn"
+                  onClick={() => {
+                    stopListening();
+                    setIsOpen(false);
+                    setIsMinimized(false);
+                  }}
+                  className="p-1 rounded-lg text-neutral-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 cursor-pointer min-h-[30px] min-w-[30px] flex items-center justify-center"
+                  title="Close ZENA"
+                  aria-label="Close ZENA"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
             </div>
           ) : (
             <>

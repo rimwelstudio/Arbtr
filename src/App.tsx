@@ -945,6 +945,7 @@ export default function App() {
         isOpen={isZenaWidgetOpen}
         onOpenChange={setIsZenaWidgetOpen}
         onOpenLiveModal={() => setShowLiveVoiceModal(true)}
+        isLiveSessionActive={showLiveVoiceModal}
       />
 
       {/* Subtle Footer with Web & Mobile Parity */}

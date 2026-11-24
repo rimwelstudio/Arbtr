@@ -19,7 +19,8 @@ import {
   Download,
   Keyboard,
   Sliders,
-  Globe
+  Globe,
+  Minimize2
 } from 'lucide-react';
 import { useLiveVoice, LiveVoiceMessage } from '../hooks/useLiveVoice';
 import { DecisionAnalysisResult } from '../types';
@@ -298,11 +299,16 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
   return (
     <div 
       id="live-voice-modal-backdrop"
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 md:p-6 bg-black/60 backdrop-blur-xs transition-opacity duration-200 animate-in fade-in"
+      onClick={handleClose}
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 md:p-6 bg-black/60 backdrop-blur-xs transition-opacity duration-200 animate-in fade-in cursor-pointer"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Live Voice Deliberation Modal"
     >
       <div 
         id="live-voice-modal-container"
-        className="relative flex flex-col w-full max-w-3xl max-h-[92vh] bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl shadow-2xl overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+        className="relative flex flex-col w-full max-w-3xl max-h-[92vh] bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl shadow-2xl overflow-hidden cursor-default"
       >
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-neutral-200/80 dark:border-neutral-800 bg-neutral-50/70 dark:bg-neutral-900/90">
@@ -377,20 +383,42 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
             <button
               type="button"
               onClick={() => setShowShortcuts(!showShortcuts)}
-              className="p-1.5 rounded-lg text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
+              className="p-2 rounded-lg text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer min-h-[36px] min-w-[36px] flex items-center justify-center"
               title="Keyboard shortcuts (M = Mute Mic, S = Mute Speaker, Esc = Close)"
+              aria-label="Keyboard shortcuts"
             >
               <Keyboard className="h-4 w-4" />
             </button>
 
+            {/* Switch to Floating Widget / Minimize */}
+            {onOpenZenaWidget && (
+              <button
+                type="button"
+                id="live-voice-minimize-btn"
+                onClick={() => {
+                  handleClose();
+                  onOpenZenaWidget();
+                }}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-100/80 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-xs font-semibold text-neutral-700 dark:text-neutral-200 transition-colors cursor-pointer min-h-[36px]"
+                title="Minimize live voice to floating referee"
+                aria-label="Minimize live voice to floating referee"
+              >
+                <Minimize2 className="h-4 w-4" />
+                <span className="hidden sm:inline">Minimize</span>
+              </button>
+            )}
+
+            {/* Close Button */}
             <button
               id="live-voice-close-btn"
               type="button"
               onClick={handleClose}
-              className="p-1.5 rounded-lg text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
-              title={t.liveVoiceClose || 'Close voice conversation'}
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-transparent hover:border-rose-200 dark:hover:border-rose-800/60 bg-neutral-100/60 dark:bg-neutral-800/60 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-neutral-600 hover:text-rose-600 dark:text-neutral-300 dark:hover:text-rose-400 font-bold text-xs transition-colors cursor-pointer min-h-[36px]"
+              title={t.liveVoiceClose || 'Close voice conversation (restore floating referee)'}
+              aria-label="Close voice conversation"
             >
-              <X className="h-5 w-5" />
+              <X className="h-4 w-4 stroke-[2.5]" />
+              <span className="hidden sm:inline">Close</span>
             </button>
           </div>
         </div>

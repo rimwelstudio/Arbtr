@@ -15,7 +15,6 @@ import {
   Menu,
   X,
   Sparkles,
-  Radio,
   FileText,
   Shield,
   User as UserIcon,
@@ -26,13 +25,13 @@ import { useAuth } from '../contexts/AuthContext';
 import { ArbitrEmblem } from './ArbitrLogo';
 import { PWAInstallButton } from './PWAInstallButton';
 
-export type NavTabId = 'studio' | 'history' | 'templates' | 'live';
+export type NavTabId = 'studio' | 'history' | 'templates';
 
 interface NavbarProps {
   onNewDecision: () => void;
   onOpenHistory: () => void;
   onOpenPresets: () => void;
-  onOpenLiveVoice: () => void;
+  onOpenLiveVoice?: () => void;
   onOpenZenaWidget?: () => void;
   onOpenAbout: () => void;
   onOpenWelcome?: () => void;
@@ -154,24 +153,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         onOpenPresets();
       },
     },
-    {
-      id: 'live',
-      label: 'ZENA Live',
-      icon: <Radio className="h-3.5 w-3.5 text-cyan-400" />,
-      action: () => {
-        setActiveTab('live');
-        onOpenLiveVoice();
-      },
-    },
   ];
-
-  const handleZenaClick = () => {
-    if (onOpenZenaWidget) {
-      onOpenZenaWidget();
-    } else {
-      onOpenLiveVoice();
-    }
-  };
 
   return (
     <header className="sticky top-0 z-40 w-full backdrop-blur-xl bg-white/90 dark:bg-slate-950/90 border-b border-neutral-200/80 dark:border-white/10 transition-all select-none">
@@ -251,23 +233,6 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* 3. Right Zone: Organized Action Cluster */}
         <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
-          {/* Compact ZENA Status Pill (Click opens ZENA Voice Assistant) */}
-          <button
-            id="nav-live-voice-btn"
-            type="button"
-            onClick={handleZenaClick}
-            className="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-cyan-500/40 dark:border-cyan-400/40 bg-cyan-500/10 dark:bg-cyan-950/60 text-cyan-900 dark:text-cyan-200 hover:bg-cyan-500/20 dark:hover:bg-cyan-900/60 hover:border-cyan-400 text-xs font-bold shadow-xs cursor-pointer transition-all active:scale-95 min-h-[36px]"
-            title="ZENA AI Decision Ref • Tap to open assistant"
-          >
-            <span className="relative flex h-2 w-2">
-              <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${wakeWordListening ? 'bg-emerald-400' : 'bg-cyan-400'} opacity-75`} />
-              <span className={`relative inline-flex rounded-full h-2 w-2 ${wakeWordListening ? 'bg-emerald-400' : 'bg-cyan-400'}`} />
-            </span>
-            <span className="tracking-tight text-neutral-900 dark:text-cyan-200 font-bold">
-              {wakeWordListening ? 'ZENA Listening' : 'ZENA Online'}
-            </span>
-          </button>
-
           {/* Primary Action Button: + New Dilemma */}
           <button
             id="nav-new-decision-btn"
@@ -461,33 +426,6 @@ export const Navbar: React.FC<NavbarProps> = ({
               transition={{ duration: 0.2, ease: 'easeOut' }}
               className="absolute top-16 inset-x-0 z-40 md:hidden border-b border-neutral-200/80 dark:border-white/15 bg-white/95 dark:bg-slate-950/98 backdrop-blur-2xl p-4 shadow-2xl max-h-[calc(100vh-4.5rem)] overflow-y-auto space-y-3.5"
             >
-              {/* Quick ZENA Voice Call Card */}
-              <div className="p-3 rounded-2xl bg-gradient-to-r from-cyan-500/10 via-indigo-500/10 to-transparent dark:from-cyan-950/70 dark:to-indigo-950/50 border border-cyan-500/30 flex items-center justify-between gap-3">
-                <div className="flex items-center gap-2.5">
-                  <span className="relative flex h-2.5 w-2.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" />
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-400" />
-                  </span>
-                  <div>
-                    <p className="text-xs font-bold text-neutral-900 dark:text-white">ZENA Voice Referee</p>
-                    <p className="text-[11px] text-cyan-800 dark:text-cyan-200 font-mono font-semibold">
-                      {wakeWordListening ? 'Wake: "Hey Zena"' : 'Direct Voice Deliberation'}
-                    </p>
-                  </div>
-                </div>
-                <button
-                  id="mobile-nav-voice-btn"
-                  type="button"
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    handleZenaClick();
-                  }}
-                  className="px-3 py-1.5 rounded-full bg-cyan-500 text-slate-950 font-bold text-xs shadow-sm hover:bg-cyan-400 transition-colors cursor-pointer"
-                >
-                  Consult ZENA
-                </button>
-              </div>
-
               {/* Mobile Navigation Links */}
               <div className="grid grid-cols-2 gap-2">
                 {navTabs.map((tab) => (
